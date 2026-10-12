@@ -1,0 +1,28 @@
+.transition-smooth {
+transition: all 0.2s ease-in-out;
+}
+
+@keyframes cardFadeIn {
+from {
+opacity: 0;
+transform: translateY(6px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+.unit-card-enter {
+animation: cardFadeIn 0.2s ease-out forwards;
+}
+
+[class*="quiz-opt-"]:active {
+transform: scale(0.99);
+}
+
+input:focus, select:focus {
+outline: none;
+box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+border-color: #6366f1;
+}

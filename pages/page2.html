@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rava - Academic Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/page2.css" />
+    <script src="../js/main.js" defer></script>
+    <script src="../js/page2.js" defer></script>
+  </head>
+  <body class="bg-slate-100 text-slate-800 antialiased">
+    <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <section class="w-full">
+        <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6 sm:p-8">
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 tracking-tight">
+              1. Semester Setup
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Select your current academic standing and session details.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <label for="year-of-study" class="block text-sm font-medium text-gray-700">
+                Year of Study
+              </label>
+              <div class="relative">
+                <select
+                  id="year-of-study"
+                  name="yearOfStudy"
+                  class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="1">Year 1</option>
+                  <option value="2" selected>Year 2</option>
+                  <option value="3">Year 3</option>
+                  <option value="4">Year 4</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label for="academic-year" class="block text-sm font-medium text-gray-700">
+                Academic Year
+              </label>
+              <input
+                type="text"
+                id="academic-year"
+                name="academicYear"
+                value="2025/2026"
+                placeholder="e.g. 2025/2026"
+                class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label for="semester" class="block text-sm font-medium text-gray-700">
+                Semester
+              </label>
+              <div class="relative">
+                <select
+                  id="semester"
+                  name="semester"
+                  class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="1" selected>Semester 1</option>
+                  <option value="2">Semester 2</option>
+                  <option value="3">Semester 3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 mt-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">2. Unit Targets & Breakdown</h2>
+            <p class="text-sm text-slate-500">Set unit target goals and ensure components equal exactly 100/100.</p>
+          </div>
+          <div id="overallValidation" class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold w-fit">Awaiting Units</div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div class="space-y-1.5">
+              <label for="unitNameInput" class="block text-sm font-medium text-slate-700">Unit Name</label>
+              <input type="text" id="unitNameInput" placeholder="e.g., Calculus II" class="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500" />
+            </div>
+            <div class="space-y-1.5">
+              <label for="templateSelect" class="block text-sm font-medium text-slate-700">Weight Template</label>
+              <select id="templateSelect" class="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+                <option value="70/30">70/30 (Exam 70 + CATs 30)</option>
+                <option value="60/40">60/40 (Exam 60 + CATs 40)</option>
+                <option value="50/50">50/50 (Exam 50 + CATs 50)</option>
+                <option value="custom">Custom Breakdown</option>
+              </select>
+            </div>
+            <div>
+              <button id="addUnitBtn" class="bg-slate-900 text-white rounded-lg p-2.5 font-medium hover:bg-slate-800 w-full">+ Add Unit</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-md font-semibold text-slate-800">Recorded Units</h3>
+          <div id="recordedUnitsContainer" class="space-y-4">
+            <p class="text-slate-400 text-sm italic">No units added yet. Enter a unit above to build your targets.</p>
+          </div>
+        </div>
+      </section>
+
+<!-- Question 1 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">1. How do you study? (Select all that apply)</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q1 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q1">
+        <span>Group study / With friends</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q1 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q1">
+        <span>Past papers</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q1 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q1">
+        <span>Notes &amp; Textbooks</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q1 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q1">
+        <span>Video tutorials</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q1 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q1">
+        <span>Alone quietly</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 2 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">2. When do you study best? (Select all that apply)</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q2 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q2">
+        <span>Morning</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q2 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q2">
+        <span>Afternoon</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q2 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q2">
+        <span>Night / Late night</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q2 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q2">
+        <span>Weekends only</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 3 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">3. How do you feel before exams?</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q3 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q3">
+        <span>😌 Calm</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q3 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q3">
+        <span>🙂 Okay</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q3 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q3">
+        <span>😬 Nervous</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q3 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q3">
+        <span>😰 Very Anxious</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q3 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q3">
+        <span>😱 Panic</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 4 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">4. What challenges you most? (Select all that apply)</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Timed exams</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Understanding concepts</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Cramming / Procrastination</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Sleep / Stress</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Skipping CATs</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q4 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q4">
+        <span>Too many units</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 5 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">5. Reflective: What did you do RIGHT last semester?</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q5 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q5">
+        <span>Attended classes regularly</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q5 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q5">
+        <span>Did past papers</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q5 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q5">
+        <span>Started early</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q5 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q5">
+        <span>Asked for help</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q5 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q5">
+        <span>Revised notes</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 6 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">6. Reflective: What went WRONG last semester?</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q6 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q6">
+        <span>Crammed last minute</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q6 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q6">
+        <span>Skipped some CATs</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q6 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q6">
+        <span>Didn't understand topics</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q6 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q6">
+        <span>Stressed / Slept badly</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q6 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q6">
+        <span>Didn't plan ahead</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 7 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">7. How many hours do you sleep daily?</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q7 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q7">
+        <span>4-5 hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q7 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q7">
+        <span>6 hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q7 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q7">
+        <span>7 hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q7 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q7">
+        <span>8+ hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Question 8 Card -->
+<div class="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+  <div>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">8. How many hours do you study per day?</h3>
+    <div class="space-y-2">
+      <button type="button" class="quiz-opt-q8 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q8">
+        <span>Less than 1 hour</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q8 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q8">
+        <span>1-2 hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q8 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q8">
+        <span>3-4 hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+      <button type="button" class="quiz-opt-q8 w-full text-left p-3 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 transition cursor-pointer flex items-center justify-between group" data-question="q8">
+        <span>5+ hours</span>
+        <span class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-slate-400 flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+</div>
+<section class="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
+  <div>
+    <h2 class="text-xl font-semibold text-slate-900">4. Your Live Personal Summary</h2>
+    <p class="text-sm text-slate-500 mt-1">A real-time reflection of everything you've shared so far.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <h3 class="text-sm font-semibold text-slate-900">Your Efforts</h3>
+      <div id="summaryEfforts" class="text-sm text-slate-700 mt-2">Complete the quiz above to see your efforts.</div>
+    </div>
+    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <h3 class="text-sm font-semibold text-slate-900">Your Struggles</h3>
+      <div id="summaryStruggles" class="text-sm text-slate-700 mt-2">Complete the quiz above to see your challenges.</div>
+    </div>
+    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <h3 class="text-sm font-semibold text-slate-900">Your Strengths</h3>
+      <div id="summaryStrengths" class="text-sm text-slate-700 mt-2">Complete the quiz above to see your strengths.</div>
+    </div>
+    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <h3 class="text-sm font-semibold text-slate-900">Your Targets</h3>
+      <div id="summaryTargets" class="text-sm text-slate-700 mt-2">Add units in Part B to see your targets.</div>
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-100">
+    <p id="reportStatusMsg" class="text-sm text-slate-500">Ensure all unit targets equal 100/100 to unlock your report.</p>
+    <button id="getReportBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto" disabled>Get My Personal Report →</button>
+  </div>
+</section>
+    </main>
+  </body>
+</html>
