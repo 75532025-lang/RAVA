@@ -51,11 +51,15 @@ if (unitNameInput && templateSelect && addUnitBtn && recordedUnitsContainer && o
     unitsList.push(unit);
     unitNameInput.value = '';
     renderUnits();
+    updateLiveSummary();
+    checkReportGate();
   });
 
   window.removeUnit = function (unitId) {
     unitsList = unitsList.filter((unit) => unit.id !== unitId);
     renderUnits();
+    updateLiveSummary();
+    checkReportGate();
   };
 
   function renderUnits() {
@@ -122,6 +126,9 @@ if (unitNameInput && templateSelect && addUnitBtn && recordedUnitsContainer && o
       overallValidation.textContent = 'Fix Unit Totals to 100';
       overallValidation.className = 'bg-rose-100 text-rose-800 px-3 py-1 rounded-full text-sm font-semibold';
     }
+
+    updateLiveSummary();
+    checkReportGate();
   }
 }
 let quizAnswers = { q1: [], q2: [], q3: "", q4: [], q5: [], q6: [], q7: "", q8: "" };
@@ -259,15 +266,6 @@ reportStatusMsg.textContent = "Ready! Click to generate your custom academic pla
 getReportBtn.disabled = true;
 reportStatusMsg.textContent = "Ensure all unit targets equal 100/100 to unlock your report.";
 }
-}
-
-if (typeof renderUnits === 'function') {
-const _superRenderUnits = renderUnits;
-renderUnits = function() {
-_superRenderUnits();
-checkReportGate();
-updateLiveSummary();
-};
 }
 
 document.querySelectorAll('[class*="quiz-opt-"]').forEach(btn => {
