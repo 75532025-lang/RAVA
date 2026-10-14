@@ -3,58 +3,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rava - Academic Planner</title>
+    <title>RAVA - Assessment</title>
     <link rel="stylesheet" href="../css/global.css" />
     <link rel="stylesheet" href="../css/page2.css" />
+    <script src="../js/shared.js" defer></script>
     <script src="../js/page2.js" defer></script>
   </head>
-  <body>
+  <body data-page="assessment">
     <main class="page-shell">
-      <header class="brand-bar">
-        <a class="brand-group brand-home" href="page1.html" aria-label="RAVA dashboard">
-          <span class="brand-mark">✦</span>
-          <span class="brand-name">RAVA</span>
-        </a>
-        <div class="progress-indicator" id="progressIndicator" aria-label="Planner progress 0 percent">
-          <span class="progress-line"></span>
-          <span class="progress-badge">0%</span>
-        </div>
+      <header class="topbar">
+        <div class="brand-wrap"><span class="brand-logo">RAVA</span></div>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a href="page1.html">Home</a>
+          <a href="page2.html" aria-current="page">Assessments</a>
+          <a href="page3.html#recommendations" data-required="assessment">Resources</a>
+          <a href="page1.html#profile-form">Profile</a>
+        </nav>
+        <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span></div>
+        <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
       </header>
 
-      <section class="story-panel">
-        <p class="story-line">Hey Alex! I read everything you told me to —</p>
-        <p class="story-sub">Here is your full semester story.</p>
+      <section class="workflow-progress" aria-label="Planner progress">
+        <div class="progress-track" id="workflowProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="0 percent complete"><span class="progress-fill" id="workflowProgressFill"></span></div>
+        <div class="progress-caption"><span id="workflowProgressText" role="status" aria-live="polite">Step 1 of 3 · Save your profile</span><span id="workflowProgressPercent">0%</span></div>
       </section>
 
-      <section class="semester-card" id="semester-setup">
+      <section class="semester-card profile-context" id="semester-setup">
         <div class="section-heading small-gap">
-          <h2>Semester Setup</h2>
+          <div>
+            <p class="eyebrow">Assessment</p>
+            <h1 id="assessmentHeading">Your semester assessment</h1>
+            <p class="section-intro">Your saved profile and previous-semester record carry through. Set the current semester you are assessing below.</p>
+          </div>
         </div>
-
         <div class="semester-grid">
-          <div class="semester-field">
-            <label for="year-of-study">Year of Study</label>
-            <select id="year-of-study" name="yearOfStudy">
-              <option value="1">Year 1</option>
-              <option value="2" selected>Year 2</option>
-              <option value="3">Year 3</option>
-              <option value="4">Year 4</option>
-            </select>
-          </div>
-
-          <div class="semester-field">
-            <label for="academic-year">Academic Year</label>
-            <input type="text" id="academic-year" name="academicYear" value="2025/2026" placeholder="e.g. 2025/2026" />
-          </div>
-
-          <div class="semester-field">
-            <label for="semester">Semester</label>
-            <select id="semester" name="semester">
-              <option value="1" selected>Semester 1</option>
-              <option value="2">Semester 2</option>
-              <option value="3">Semester 3</option>
-            </select>
-          </div>
+          <div class="context-field"><span>Name</span><strong id="assessmentName"></strong></div>
+          <div class="context-field"><span>University</span><strong id="assessmentUniversity"></strong></div>
+          <div class="context-field"><span>Course</span><strong id="assessmentCourse"></strong></div>
+          <div class="context-field"><span>Year</span><strong id="assessmentYear"></strong></div>
+        </div>
+        <div class="current-semester-setup">
+          <h2>Current semester setup</h2>
+          <form id="currentSemesterForm" class="current-semester-grid">
+            <div class="form-field">
+              <label for="currentAcademicYear">Current academic year</label>
+              <input id="currentAcademicYear" type="text" maxlength="20" required placeholder="e.g. 2026/2027">
+            </div>
+            <div class="form-field">
+              <label for="currentSemesterSelect">Current semester</label>
+              <select id="currentSemesterSelect" required>
+                <option value="">Choose semester</option>
+                <option value="Semester 1">Semester 1</option>
+                <option value="Semester 2">Semester 2</option>
+                <option value="Semester 3">Semester 3</option>
+              </select>
+            </div>
+          </form>
+          <p id="currentSemesterStatus" class="form-status" role="status" aria-live="polite">Set the current academic year and semester before completing the assessment.</p>
+        </div>
+        <div class="previous-semester-context">
+          <h2>Previous semester from Home</h2>
+          <p id="previousSemesterContext"></p>
+          <ul id="previousUnitsPreview"></ul>
         </div>
       </section>
 
@@ -201,11 +211,10 @@
           </div>
         </div>
 
-        <div class="report-bar">
-          <p id="reportStatusMsg">Ensure all unit targets equal 100/100 to unlock your report.</p>
-          <button id="getReportBtn" type="button" disabled>Generate My Report →</button>
+        <div class="assessment-footer">
+          <p id="assessmentStatus" role="status" aria-live="polite">Add at least one valid unit and answer every check-in question to continue.</p>
+          <button id="continueToFindingsBtn" class="primary-btn" type="button" disabled>Next Section &rarr;</button>
         </div>
-        <section id="generatedReport" class="generated-report" aria-live="polite" hidden></section>
       </section>
 
       <section class="glance-card" id="semester-overview">
@@ -235,75 +244,8 @@
         </div>
       </section>
 
-      <section class="diagnosis-card">
-        <div class="diagnosis-header">
-          <span class="mini-icon">✚</span>
-          <h3>My Diagnosis For You</h3>
-        </div>
-        <p id="diagnosisText">Complete the check-in to see a reflection based on your answers.</p>
-      </section>
-
-      <section class="recommendation-grid" id="recommendations">
-        <article class="rec-card">
-          <div class="rec-number">1</div>
-          <h3>Your 4 Best Recommendations</h3>
-          <ul>
-            <li><strong>Active Recall</strong> + Teach-Back Method</li>
-            <li><strong>Self-quiz</strong> and teach the concept aloud.</li>
-            <li><strong>Use spaced repetition</strong> instead of cramming.</li>
-            <li><strong>Build confidence</strong> with short active review blocks.</li>
-          </ul>
-        </article>
-
-        <article class="rec-card">
-          <div class="rec-number">2</div>
-          <h3>Spaced Repetition + Interleaving</h3>
-          <p>Technique: Review material in spaced intervals, mixing subjects instead of studying one topic for hours.</p>
-          <p><strong>Why It Works:</strong> Prevents cramming, keeps unit fresh and reduces overload.</p>
-          <p><strong>How To Do It For Each Unit:</strong> Calculus, Linear Algebra, Organic Chemistry and Chemistry practical methods.</p>
-        </article>
-
-        <article class="rec-card">
-          <div class="rec-number">3</div>
-          <h3>Stress &amp; Sleep Reset — 5-hour sleep issue</h3>
-          <p>Technique: Create a consistent wind-down routine to gradually improve sleep quality.</p>
-          <p><strong>How To Do It:</strong> Wind down 30–60 minutes before bed, limit screens, and keep a regular sleep schedule.</p>
-        </article>
-
-        <article class="rec-card">
-          <div class="rec-number">4</div>
-          <h3>Exam Strategy + Time Management</h3>
-          <p>Technique: Use timed practice + structured past paper review to build calm under pressure.</p>
-          <p><strong>How It Helps Your Targets:</strong> Build exam confidence and improve pacing with realistic time blocks.</p>
-        </article>
-      </section>
-
-      <section class="weekly-plan">
-        <h2>Weekly Plan — Not Forced</h2>
-        <div class="plan-box">
-          <p>Would you like a sample weekly plan to get started?</p>
-          <div class="plan-actions">
-            <button type="button" class="plan-btn primary" id="showSamplePlanBtn">Yes, show me a sample</button>
-            <button type="button" class="plan-btn" id="createOwnPlanBtn">No, I’ll create my own</button>
-          </div>
-          <small>Note: This is just a recommendation to guide you. You are encouraged to formulate your own plan that fits your life.</small>
-          <div id="planOutput" class="plan-output" aria-live="polite" hidden></div>
-          <div id="ownPlanEditor" class="own-plan-editor" hidden>
-            <label for="ownPlanNotes">Your weekly plan</label>
-            <textarea id="ownPlanNotes" rows="4" maxlength="2000" placeholder="Add study blocks, rest, and commitments..."></textarea>
-            <button type="button" class="plan-btn" id="saveOwnPlanBtn">Save my plan</button>
-            <p id="ownPlanStatus" role="status" aria-live="polite"></p>
-          </div>
-        </div>
-      </section>
-
-      <footer class="bottom-bar">
-        <div class="bottom-message">
-          <span class="mini-icon">✦</span>
-          <span>You can do this, Alex. Steady steps now build confident results later.</span>
-        </div>
-        <a class="back-link" href="page1.html">← Back to dashboard</a>
-        <button type="button" class="download-btn" id="downloadReportBtn" disabled>↓ Download Report</button>
+      <footer class="assessment-navigation">
+        <a class="back-link" href="page1.html#profile-form">&larr; Back to Home</a>
       </footer>
     </main>
   </body>

@@ -1,30 +1,33 @@
 # RAVA Academic Planner
 
-A lightweight, two-page academic planner built with plain HTML, CSS, and JavaScript. No package installation or build step is required.
+A lightweight, three-page academic planner built with plain HTML, CSS, and JavaScript. No package installation or build step is required.
 
 ## Run locally
 
-From the project root, start a local server:
+Open `pages/page1.html` directly in a browser. For a consistent HTTP origin, start a local server from the project root if Python is installed:
 
 ```powershell
 python -m http.server 8000
 ```
 
-Open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/page1.html). The dashboard links to the planner, and the planner links back to the dashboard. Serving the files locally provides more consistent browser storage and download behavior than opening the HTML files directly.
+Then open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/page1.html). Home saves a profile before unlocking Assessment; a completed assessment unlocks Findings; generating the final report unlocks its download. The navigation and progress strip are shared across all three pages. Browser-local profiles work without a build step or server.
 
 ## Project map
 
-- `pages/page1.html` is the dashboard for previous-semester grades and academic details.
-- `pages/page2.html` is the unit-target planner, diagnostic check-in, report, and weekly-plan view.
-- `css/global.css` defines the shared beige and medium-grey palette, base typography, and focus styles.
-- `css/page1.css` and `css/page2.css` contain page-specific responsive layouts and controls.
-- `js/page1.js` manages previous-unit grades, summary metrics, profile filters, and draft saving.
-- `js/page2.js` manages planner units, quiz answers, live summaries, report generation, and weekly plans.
+- `pages/page1.html` is Home, where each person creates or selects a saved profile and records previous-semester study year, academic year, semester, and optional unit grades.
+- `pages/page2.html` is Assessment, where the current academic year and semester, current unit targets, and all eight diagnostic answers are entered.
+- `pages/page3.html` compares previous results with current targets and contains personalized findings, recommendations, weekly planning, and final report generation.
+- `css/global.css` provides the shared beige/medium-grey palette, responsive navigation, progress strip, typography, and focus styles.
+- `css/page1.css`, `css/page2.css`, and `css/page3.css` contain each page's responsive layout and controls.
+- `js/shared.js` manages profile storage, switching, shared navigation, and workflow progress.
+- `js/page1.js` manages profile creation, validation, carousel controls, and the Home continuation gate.
+- `js/page2.js` manages per-profile unit targets, diagnostic answers, summaries, and the Assessment completion gate.
+- `js/page3.js` creates per-profile findings, recommendations, weekly plans, and the final report/download gate.
 
 ## Data and privacy
 
-The project has no server or external dependencies. Drafts, planner units, check-in answers, and personal weekly-plan notes are stored in the current browser's local storage. Clearing that browser data removes those saved entries. The report download is a plain-text file generated in the browser.
+The project has no server or external dependencies. Each profile and its planner data are stored in the current browser's local storage, and Home provides a profile switcher for people sharing that browser. This is convenient separation, not account security: anyone using the same browser profile can access its saved records. For private, cross-device accounts, connect the project to an authenticated backend. Clearing browser data removes locally saved profiles. The report download is a plain-text file generated in the browser.
 
-## Grade display
+## Assessment rules
 
-Previous-unit grades can be shown as percentages or letter bands. The neutral grade bands use muted grey values and always retain a textual grade, so meaning does not depend on color alone. Planner component weights must total 100 points, and each target must remain within its component weight before a report can be generated.
+Assessment completion requires the current academic year and semester, at least one unit whose component weights total 100, targets within each component's weight, and an answer to each of the eight check-in questions. Workflow progress is 0%, 33%, 67%, then 100% only after the final report is generated. The report download stays disabled until that final step. Previous-semester unit grades are optional and appear in the comparison when their unit names match.

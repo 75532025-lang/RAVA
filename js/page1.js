@@ -1,230 +1,209 @@
-const defaultUnits = [
-  { name: 'Calculus I', grade: 65 },
-  { name: 'Communication Skills', grade: 78 },
-  { name: 'Physics', grade: 55 },
-  { name: 'Chemistry', grade: 70 }
-];
+const profileForm = document.getElementById('profileForm');
+const profileStatus = document.getElementById('profileStatus');
+const saveDraftButton = document.getElementById('saveDraftBtn');
+const continueButton = document.getElementById('continueToPage2Btn');
+const newProfileButton = document.getElementById('newProfileBtn');
+const previousUnitsBody = document.getElementById('previousUnitsBody');
+const previousUnitsSummary = document.getElementById('previousUnitsSummary');
+const previousUnitsStatus = document.getElementById('previousUnitsStatus');
+const previousUnitNameInput = document.getElementById('previousUnitName');
+const previousUnitGradeInput = document.getElementById('previousUnitGrade');
+const profileFieldNames = ['fullName', 'university', 'course', 'yearOfStudy', 'previousStudyYear', 'previousAcademicYear'];
+const profileFields = {
+  ...Object.fromEntries(profileFieldNames.map((name) => [name, document.getElementById(name)])),
+  previousSemester: document.getElementById('previousSemester')
+};
+const activeProfile = window.RavaStore.getActiveProfile();
+let previousUnits = normalizePreviousUnits(activeProfile?.profile?.previousSemester?.units);
+let createNewProfile = false;
 
-function loadPreviousUnits() {
-  try {
-    const draft = JSON.parse(localStorage.getItem('ravaAcademicDraft'));
-    const storedPreviousUnits = localStorage.getItem('ravaPreviousUnits');
-    let savedUnits = draft?.units;
-    if (!Array.isArray(savedUnits) || (!savedUnits.length && storedPreviousUnits === null)) {
-      savedUnits = storedPreviousUnits ? JSON.parse(storedPreviousUnits) : null;
+function normalizePreviousUnits(units) {
+  if (!Array.isArray(units)) return [];
+  return units.filter((unit) => unit && typeof unit.name === 'string' && Number.isFinite(Number(unit.grade)) && Number(unit.grade) >= 0 && Number(unit.grade) <= 100)
+    .map((unit) => ({ name: unit.name.trim(), grade: Number(unit.grade) }))
+    .filter((unit) => unit.name);
+}
+
+function readProfileForm() {
+  return {
+    ...Object.fromEntries(profileFieldNames.map((name) => [name, profileFields[name].value.trim()])),
+    previousSemester: {
+      studyYear: profileFields.previousStudyYear.value.trim(),
+      academicYear: profileFields.previousAcademicYear.value.trim(),
+      semester: profileFields.previousSemester.value.trim(),
+      units: previousUnits.map((unit) => ({ ...unit }))
     }
-    if (!Array.isArray(savedUnits)) return defaultUnits;
+  };
+}
 
-    return savedUnits.filter((unit) =>
-      unit && typeof unit.name === 'string' && unit.name.trim() &&
-      Number.isFinite(Number(unit.grade)) && Number(unit.grade) >= 0 && Number(unit.grade) <= 100
-    ).map((unit) => ({ name: unit.name.trim(), grade: Number(unit.grade) }));
-  } catch {
-    return defaultUnits;
+function setProfileForm(profile) {
+  profileFieldNames.forEach((name) => {
+    if (profileFields[name] && profile[name]) profileFields[name].value = profile[name];
+  });
+  if (profile.previousSemester?.semester) profileFields.previousSemester.value = profile.previousSemester.semester;
+  previousUnits = normalizePreviousUnits(profile.previousSemester?.units);
+  renderPreviousUnits();
+}
+
+function profileMatchesForm(profile) {
+  if (!profile) return false;
+  const current = readProfileForm();
+  return profileFieldNames.every((name) => profile[name] === current[name]) &&
+    JSON.stringify(profile.previousSemester || {}) === JSON.stringify(current.previousSemester);
+}
+
+function updateDraftState() {
+  const unchanged = profileMatchesForm(window.RavaStore.getActiveProfile()?.profile);
+  if (continueButton) continueButton.disabled = !unchanged;
+  if (!unchanged && saveDraftButton) saveDraftButton.textContent = 'Save Draft';
+  if (profileStatus) {
+    profileStatus.textContent = unchanged
+      ? 'Your profile and previous semester are saved.'
+      : 'Save your profile and previous-semester details before continuing.';
   }
-}
-
-let previousUnits = loadPreviousUnits();
-let gradeMethod = 'Percentage';
-
-const globalGradeMethodSelect = document.getElementById('globalGradeMethodSelect');
-const previousUnitsTableBody = document.getElementById('previousUnitsTableBody');
-const summaryDisplayText = document.getElementById('summaryDisplayText');
-const addPreviousUnitForm = document.getElementById('addPreviousUnitForm');
-const continueToPage2Btn = document.getElementById('continueToPage2Btn');
-const saveDraftBtn = document.getElementById('saveDraftBtn');
-const draftStatus = document.getElementById('draftStatus');
-const filterYear = document.getElementById('filterYear');
-const filterSemester = document.getElementById('filterSemester');
-const filterUniversity = document.getElementById('filterUniversity');
-
-try {
-  const savedDraft = JSON.parse(localStorage.getItem('ravaAcademicDraft'));
-  if (savedDraft) {
-    if (filterYear && [...filterYear.options].some((option) => option.value === savedDraft.year)) filterYear.value = savedDraft.year;
-    if (filterSemester && [...filterSemester.options].some((option) => option.value === savedDraft.semester)) filterSemester.value = savedDraft.semester;
-    if (filterUniversity && [...filterUniversity.options].some((option) => option.value === savedDraft.university)) filterUniversity.value = savedDraft.university;
-  }
-} catch {
-  if (draftStatus) draftStatus.textContent = 'A saved draft could not be read.';
-}
-
-function updateProfileDetails() {
-  const universityName = filterUniversity?.selectedOptions[0]?.textContent.replace(/\s\([^)]*\)$/, '');
-  const universityDisplay = document.getElementById('profileUniversity');
-  const yearDisplay = document.getElementById('profileYear');
-  const semesterContext = document.getElementById('semesterContext');
-
-  if (universityDisplay && universityName) universityDisplay.textContent = universityName;
-  if (yearDisplay && filterYear) yearDisplay.textContent = filterYear.value;
-  if (semesterContext && filterYear && filterSemester) {
-    semesterContext.textContent = `${filterYear.value} · ${filterSemester.value} · Choose the grading method below.`;
-  }
-}
-
-function getLetterGrade(grade) {
-  if (grade >= 70) return 'A (70–100%)';
-  if (grade >= 60) return 'B (60–69%)';
-  if (grade >= 50) return 'C (50–59%)';
-  if (grade >= 40) return 'D (40–49%)';
-  return 'E / Fail (<40%)';
-}
-
-function formatGradeValue(unit) {
-  if (gradeMethod === 'Percentage') {
-    return `${unit.grade} / 100 — ${unit.grade}%`;
-  }
-  return getLetterGrade(unit.grade);
-}
-
-function getGradeBand(grade) {
-  if (grade >= 70) return 'grade-strong';
-  if (grade >= 50) return 'grade-progressing';
-  return 'grade-support';
 }
 
 function renderPreviousUnits() {
-  if (!previousUnitsTableBody) return;
-
-  previousUnitsTableBody.innerHTML = '';
-
-  if (previousUnits.length === 0) {
-    const emptyRow = document.createElement('tr');
-    const emptyCell = document.createElement('td');
-    emptyCell.colSpan = 2;
-    emptyCell.textContent = 'No units added yet.';
-    emptyRow.appendChild(emptyCell);
-    previousUnitsTableBody.appendChild(emptyRow);
-    renderSummary(0, null, null);
-    updateProgress();
+  previousUnitsBody.replaceChildren();
+  if (!previousUnits.length) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 3;
+    cell.textContent = 'No previous units added yet.';
+    row.appendChild(cell);
+    previousUnitsBody.appendChild(row);
+    if (previousUnitsSummary) previousUnitsSummary.textContent = 'No previous units added';
     return;
   }
 
-  let total = 0;
-  let best = previousUnits[0];
-  let lowest = previousUnits[0];
-
   previousUnits.forEach((unit, index) => {
-    const grade = Number(unit.grade) || 0;
-    total += grade;
-    if (grade > (Number(best.grade) || 0)) best = unit;
-    if (grade < (Number(lowest.grade) || 0)) lowest = unit;
-
-    const tr = document.createElement('tr');
+    const row = document.createElement('tr');
     const nameCell = document.createElement('td');
     const gradeCell = document.createElement('td');
-    const gradePill = document.createElement('span');
+    const actionCell = document.createElement('td');
     const removeButton = document.createElement('button');
-
     nameCell.textContent = unit.name;
-    gradeCell.className = 'grade-cell';
-    gradePill.className = `grade-pill ${getGradeBand(grade)}`;
-    gradePill.textContent = formatGradeValue(unit);
+    gradeCell.textContent = `${unit.grade}%`;
     removeButton.type = 'button';
-    removeButton.className = 'remove-btn';
+    removeButton.className = 'remove-previous-unit';
     removeButton.dataset.index = String(index);
+    removeButton.setAttribute('aria-label', `Remove ${unit.name} from previous semester`);
     removeButton.textContent = 'Remove';
-    gradeCell.append(gradePill, removeButton);
-    tr.append(nameCell, gradeCell);
-    previousUnitsTableBody.appendChild(tr);
+    actionCell.appendChild(removeButton);
+    row.append(nameCell, gradeCell, actionCell);
+    previousUnitsBody.appendChild(row);
   });
 
-  const avg = (total / previousUnits.length).toFixed(1);
-  renderSummary(avg, best, lowest);
-  updateProgress();
+  const average = previousUnits.reduce((total, unit) => total + unit.grade, 0) / previousUnits.length;
+  previousUnitsSummary.textContent = `${previousUnits.length} ${previousUnits.length === 1 ? 'unit' : 'units'} · ${average.toFixed(1)}% average`;
 }
 
-function updateProgress() {
-  const progress = document.getElementById('previousUnitsProgress');
-  const label = document.getElementById('previousUnitsProgressLabel');
-  if (progress) progress.textContent = `Progress: ${Math.min(previousUnits.length * 10, 100)}%`;
-  if (label) label.textContent = `${previousUnits.length} ${previousUnits.length === 1 ? 'unit' : 'units'} entered`;
+function addPreviousUnit() {
+  const name = previousUnitNameInput.value.trim();
+  const grade = Number(previousUnitGradeInput.value);
+  if (!name || previousUnitGradeInput.value === '' || !Number.isFinite(grade) || grade < 0 || grade > 100) {
+    previousUnitsStatus.textContent = 'Enter a unit name and a grade from 0 to 100.';
+    return;
+  }
+
+  previousUnits.push({ name, grade });
+  previousUnitNameInput.value = '';
+  previousUnitGradeInput.value = '';
+  previousUnitsStatus.textContent = `${name} added to previous-semester history.`;
+  renderPreviousUnits();
+  updateDraftState();
 }
 
-function renderSummary(average, best, lowest) {
-  if (!summaryDisplayText) return;
+const savedProfile = activeProfile?.profile;
+if (savedProfile) setProfileForm(savedProfile);
+if (continueButton) continueButton.disabled = !activeProfile?.profileSaved || !profileMatchesForm(savedProfile);
 
-  summaryDisplayText.replaceChildren();
-  summaryDisplayText.append('Average ');
-  appendMetric(average === 0 ? '0%' : `${average}%`);
-  summaryDisplayText.append(' | Best ');
-  appendMetric(best ? `${best.name} ${best.grade}%` : '—');
-  summaryDisplayText.append(' | Lowest ');
-  appendMetric(lowest ? `${lowest.name} ${lowest.grade}%` : '—');
-}
+profileForm?.addEventListener('input', updateDraftState);
+profileForm?.addEventListener('change', updateDraftState);
+document.getElementById('addPreviousUnitBtn')?.addEventListener('click', addPreviousUnit);
 
-function appendMetric(value) {
-  const strong = document.createElement('strong');
-  strong.textContent = value;
-  summaryDisplayText.appendChild(strong);
-}
-
-if (globalGradeMethodSelect) {
-  globalGradeMethodSelect.addEventListener('change', (event) => {
-    gradeMethod = event.target.value;
-    renderPreviousUnits();
-  });
-}
-
-previousUnitsTableBody?.addEventListener('click', (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-
-  const button = target.closest('.remove-btn');
+previousUnitsBody?.addEventListener('click', (event) => {
+  const button = event.target.closest('.remove-previous-unit');
   if (!button) return;
-
   const index = Number(button.dataset.index);
-  if (Number.isInteger(index) && index >= 0 && index < previousUnits.length) {
-    previousUnits.splice(index, 1);
-    renderPreviousUnits();
-  }
+  if (!Number.isInteger(index) || index < 0 || index >= previousUnits.length) return;
+  previousUnits.splice(index, 1);
+  renderPreviousUnits();
+  previousUnitsStatus.textContent = 'Previous unit removed. Save your changes to keep this update.';
+  updateDraftState();
 });
 
-if (addPreviousUnitForm) {
-  addPreviousUnitForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!addPreviousUnitForm.reportValidity()) return;
+profileForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!profileForm.reportValidity()) return;
 
-    const formData = new FormData(addPreviousUnitForm);
-    previousUnits.push({
-      name: String(formData.get('unitName')).trim(),
-      grade: Number(formData.get('grade'))
-    });
-    addPreviousUnitForm.reset();
-    document.getElementById('previousUnitGrade').value = '70';
-    renderPreviousUnits();
-  });
-}
-
-function saveDraft() {
-  const draft = {
-    units: previousUnits,
-    year: document.getElementById('filterYear')?.value,
-    semester: document.getElementById('filterSemester')?.value,
-    university: document.getElementById('filterUniversity')?.value
-  };
-
-  try {
-    localStorage.setItem('ravaPreviousUnits', JSON.stringify(previousUnits));
-    localStorage.setItem('ravaAcademicDraft', JSON.stringify(draft));
-    if (draftStatus) draftStatus.textContent = 'Draft saved on this device.';
-  } catch {
-    if (draftStatus) draftStatus.textContent = 'Draft could not be saved in this browser.';
+  const profile = window.RavaStore.saveProfile(readProfileForm(), createNewProfile);
+  if (!profile) {
+    profileStatus.textContent = 'This browser could not save your profile. Check its storage settings and try again.';
+    return;
   }
-}
 
-if (saveDraftBtn) saveDraftBtn.addEventListener('click', saveDraft);
-
-[filterYear, filterSemester, filterUniversity].forEach((filter) => {
-  filter?.addEventListener('change', updateProfileDetails);
+  if (continueButton) continueButton.disabled = false;
+  saveDraftButton.textContent = 'Draft Saved';
+  profileStatus.textContent = `Saved for ${profile.profile.fullName}, including previous-semester details.`;
+  createNewProfile = false;
+  window.RavaStore.renderProfileSwitcher();
+  window.RavaStore.renderWorkflowProgress();
+  document.getElementById('profileName').textContent = profile.profile.fullName;
+  const initials = profile.profile.fullName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toLocaleUpperCase();
+  document.getElementById('profileAvatar').textContent = initials;
 });
 
-if (continueToPage2Btn) {
-  continueToPage2Btn.addEventListener('click', () => {
-    saveDraft();
-    window.location.href = 'page2.html';
-  });
+newProfileButton?.addEventListener('click', () => {
+  createNewProfile = true;
+  profileForm.reset();
+  previousUnits = [];
+  renderPreviousUnits();
+  previousUnitsStatus.textContent = '';
+  if (continueButton) continueButton.disabled = true;
+  if (saveDraftButton) saveDraftButton.textContent = 'Save Draft';
+  if (profileStatus) profileStatus.textContent = 'Enter details for a new person. Other saved profiles will remain on this device.';
+  profileFields.fullName.focus();
+});
+
+continueButton?.addEventListener('click', () => {
+  const profile = window.RavaStore.getActiveProfile();
+  if (!profile?.profileSaved || !profileMatchesForm(profile.profile)) {
+    continueButton.disabled = true;
+    profileStatus.textContent = 'Save your profile and previous-semester details before continuing.';
+    return;
+  }
+  window.location.href = 'page2.html';
+});
+
+const announcements = [
+  { text: 'Set up your profile and previous semester to begin.', link: 'Complete profile', href: '#profile-form', required: '' },
+  { text: 'Choose unit targets and reflect on the habits shaping your study.', link: 'Open assessment', href: 'page2.html', required: 'profile' },
+  { text: 'Turn your answers into findings, recommendations, and a clear next step.', link: 'View resources', href: 'page3.html#recommendations', required: 'assessment' }
+];
+
+let announcementIndex = 0;
+const announcementText = document.getElementById('announcementText');
+const announcementLink = document.getElementById('announcementLink');
+
+function renderAnnouncement() {
+  const announcement = announcements[announcementIndex];
+  announcementText.textContent = announcement.text;
+  announcementLink.textContent = `${announcement.link} →`;
+  announcementLink.href = announcement.href;
+  if (announcement.required) announcementLink.dataset.required = announcement.required;
+  else delete announcementLink.dataset.required;
 }
+
+document.getElementById('previousAnnouncement')?.addEventListener('click', () => {
+  announcementIndex = (announcementIndex + announcements.length - 1) % announcements.length;
+  renderAnnouncement();
+});
+
+document.getElementById('nextAnnouncement')?.addEventListener('click', () => {
+  announcementIndex = (announcementIndex + 1) % announcements.length;
+  renderAnnouncement();
+});
 
 renderPreviousUnits();
-updateProfileDetails();
+renderAnnouncement();

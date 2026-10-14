@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAVA - Findings</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/page3.css" />
+    <script src="../js/shared.js" defer></script>
+    <script src="../js/page3.js" defer></script>
+  </head>
+  <body data-page="findings">
+    <main class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap"><span class="brand-logo">RAVA</span></div>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a href="page1.html">Home</a>
+          <a href="page2.html" data-required="profile">Assessments</a>
+          <a href="page3.html#recommendations" aria-current="page" data-required="assessment">Resources</a>
+          <a href="page1.html#profile-form">Profile</a>
+        </nav>
+        <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span></div>
+        <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
+      </header>
+
+      <section class="workflow-progress" aria-label="Planner progress">
+        <div class="progress-track" id="workflowProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="0 percent complete"><span class="progress-fill" id="workflowProgressFill"></span></div>
+        <div class="progress-caption"><span id="workflowProgressText" role="status" aria-live="polite">Step 1 of 3 · Save your profile</span><span id="workflowProgressPercent">0%</span></div>
+      </section>
+
+      <section class="findings-hero">
+        <p class="eyebrow">Your semester, understood</p>
+        <h1 id="findingsHeading">Findings &amp; Recommendations</h1>
+        <p id="findingsIntro">Your assessment responses and semester details come together here.</p>
+      </section>
+
+      <section class="profile-summary" aria-label="Current academic profile">
+        <div><span>University</span><strong id="findingUniversity"></strong></div>
+        <div><span>Course</span><strong id="findingCourse"></strong></div>
+        <div><span>Year of study</span><strong id="findingStudyYear"></strong></div>
+        <div><span>Academic year</span><strong id="findingAcademicYear"></strong></div>
+        <div><span>Semester</span><strong id="findingSemester"></strong></div>
+      </section>
+
+      <section class="previous-semester-summary" aria-labelledby="previousSemesterHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">From Home</p>
+            <h2 id="previousSemesterHeading">Previous semester record</h2>
+          </div>
+        </div>
+        <p id="previousSemesterDetails"></p>
+        <div id="previousUnitsResults" class="previous-units-results"></div>
+      </section>
+
+      <section class="finding-section" id="findings">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Assessment findings</p>
+            <h2>Your current pattern</h2>
+          </div>
+          <span class="result-chip" id="assessmentResultChip">Assessment pending</span>
+        </div>
+        <p id="diagnosisText" class="diagnosis-text"></p>
+        <div id="unitFindings" class="unit-findings"></div>
+      </section>
+
+      <section class="finding-section" id="recommendations">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Practical next steps</p>
+            <h2>Recommendations for you</h2>
+          </div>
+        </div>
+        <div id="recommendationList" class="recommendation-list"></div>
+      </section>
+
+      <section class="finding-section weekly-plan" id="weekly-plan">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Make it actionable</p>
+            <h2>Your weekly plan</h2>
+          </div>
+        </div>
+        <p class="section-intro">Choose a flexible starting point or write a plan that suits your schedule.</p>
+        <div class="plan-actions">
+          <button type="button" class="secondary-btn" id="showSamplePlanBtn">Show a sample week</button>
+          <button type="button" class="secondary-btn" id="createOwnPlanBtn">Write my own plan</button>
+        </div>
+        <div id="planOutput" class="plan-output" aria-live="polite" hidden></div>
+        <div id="ownPlanEditor" class="own-plan-editor" hidden>
+          <label for="ownPlanNotes">Your weekly plan</label>
+          <textarea id="ownPlanNotes" rows="4" maxlength="2000" placeholder="Add study blocks, rest, and commitments..."></textarea>
+          <button type="button" class="secondary-btn" id="saveOwnPlanBtn">Save my plan</button>
+          <p id="ownPlanStatus" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="finding-section report-section" id="report-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Final step</p>
+            <h2>Your academic report</h2>
+          </div>
+        </div>
+        <p id="reportStatus" role="status" aria-live="polite">Complete all assessment questions and add a valid unit to generate your report.</p>
+        <div class="report-actions">
+          <button type="button" class="primary-btn" id="generateReportBtn" disabled>Generate final report</button>
+          <button type="button" class="secondary-btn" id="downloadReportBtn" disabled>Download report</button>
+        </div>
+        <article id="reportOutput" class="report-output" aria-live="polite" hidden></article>
+      </section>
+
+      <footer class="page-footer">
+        <a href="page2.html">&larr; Back to Assessment</a>
+        <span>You can update your profile or assessment at any time.</span>
+      </footer>
+    </main>
+  </body>
+</html>

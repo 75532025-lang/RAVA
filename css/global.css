@@ -73,3 +73,186 @@ textarea:focus-visible {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--button);
 }
+
+.page-shell {
+  width: min(1140px, calc(100% - 32px));
+  margin: 16px auto 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: auto minmax(320px, 1fr) auto;
+  grid-template-areas: "brand nav profile" "notice notice notice";
+  align-items: center;
+  gap: 12px 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.brand-wrap {
+  grid-area: brand;
+}
+
+.brand-logo {
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 850;
+}
+
+.nav-links {
+  grid-area: nav;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-links a {
+  min-width: 0;
+  padding: 8px 6px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+  background: var(--page-deep);
+  color: var(--text);
+}
+
+.profile-pill {
+  grid-area: profile;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 210px;
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.profile-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--button);
+  color: var(--panel-soft);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.navigation-notice {
+  grid-area: notice;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.workflow-progress {
+  width: 100%;
+  padding: 1px 2px 3px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--page-deep);
+}
+
+.progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--button);
+  transition: width 240ms ease;
+}
+
+.progress-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 6px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+#workflowProgressPercent {
+  color: var(--text);
+  font-weight: 750;
+}
+
+textarea {
+  font: inherit;
+}
+
+@media (max-width: 760px) {
+  .page-shell {
+    width: calc(100% - 24px);
+    margin-top: 12px;
+  }
+
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand profile" "nav nav" "notice notice";
+    gap: 8px 12px;
+    padding: 12px;
+  }
+
+  .nav-links {
+    width: 100%;
+  }
+
+  .nav-links a {
+    padding: 8px 2px;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .page-shell {
+    width: calc(100% - 18px);
+  }
+
+  .nav-links a {
+    font-size: 0.69rem;
+  }
+
+  .profile-pill {
+    max-width: 135px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
