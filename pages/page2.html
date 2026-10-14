@@ -4,22 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rava - Academic Planner</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/global.css" />
     <link rel="stylesheet" href="../css/page2.css" />
-    <script src="../js/main.js" defer></script>
     <script src="../js/page2.js" defer></script>
   </head>
   <body>
     <main class="page-shell">
       <header class="brand-bar">
-        <div class="brand-group" aria-label="RAVA brand">
+        <a class="brand-group brand-home" href="page1.html" aria-label="RAVA dashboard">
           <span class="brand-mark">✦</span>
           <span class="brand-name">RAVA</span>
-        </div>
-        <div class="progress-indicator" aria-label="Progress 100 percent">
+        </a>
+        <div class="progress-indicator" id="progressIndicator" aria-label="Planner progress 0 percent">
           <span class="progress-line"></span>
-          <span class="progress-badge">100%</span>
+          <span class="progress-badge">0%</span>
         </div>
       </header>
 
@@ -28,7 +26,7 @@
         <p class="story-sub">Here is your full semester story.</p>
       </section>
 
-      <section class="semester-card">
+      <section class="semester-card" id="semester-setup">
         <div class="section-heading small-gap">
           <h2>Semester Setup</h2>
         </div>
@@ -60,7 +58,7 @@
         </div>
       </section>
 
-      <section class="unit-card">
+      <section class="unit-card" id="unit-targets">
         <div class="section-heading inline-heading">
           <div>
             <h2>Unit Targets & Breakdown</h2>
@@ -70,7 +68,7 @@
         </div>
 
         <div class="unit-builder">
-          <div class="unit-builder-grid">
+          <form id="unitBuilderForm" class="unit-builder-grid">
             <div class="form-field">
               <label for="unitNameInput">Unit Name</label>
               <input type="text" id="unitNameInput" placeholder="e.g., Calculus II" />
@@ -87,9 +85,10 @@
             </div>
 
             <div class="form-action">
-              <button id="addUnitBtn" type="button">+ Add Unit</button>
+              <button id="addUnitBtn" type="submit">+ Add Unit</button>
             </div>
-          </div>
+          </form>
+          <p id="unitFormStatus" class="form-status" role="status" aria-live="polite"></p>
         </div>
 
         <div class="recorded-wrap">
@@ -100,7 +99,7 @@
         </div>
       </section>
 
-      <section class="quiz-section">
+      <section class="quiz-section" id="diagnostic-check-in">
         <div class="section-heading small-gap">
           <h2>Diagnostic Check-In</h2>
         </div>
@@ -178,7 +177,7 @@
         </div>
       </section>
 
-      <section class="summary-card">
+      <section class="summary-card" id="personal-summary">
         <div class="section-heading small-gap">
           <h2>Your Live Personal Summary</h2>
         </div>
@@ -204,11 +203,12 @@
 
         <div class="report-bar">
           <p id="reportStatusMsg">Ensure all unit targets equal 100/100 to unlock your report.</p>
-          <button id="getReportBtn" type="button" disabled>Get My Personal Report →</button>
+          <button id="getReportBtn" type="button" disabled>Generate My Report →</button>
         </div>
+        <section id="generatedReport" class="generated-report" aria-live="polite" hidden></section>
       </section>
 
-      <section class="glance-card">
+      <section class="glance-card" id="semester-overview">
         <div class="section-heading small-gap">
           <h2>Your Semester At A Glance</h2>
         </div>
@@ -223,32 +223,15 @@
                 <th>Pattern / Notes</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>1 &nbsp; Calculus II</td>
-                <td>Exam 50/70 + CATs 25/30</td>
-                <td>Past: Calculus I — 65%</td>
-                <td>Struggling with timed exams</td>
-              </tr>
-              <tr>
-                <td>2 &nbsp; Linear Algebra</td>
-                <td>Exam 40/60 + CATs 30/40</td>
-                <td>Past: 58%</td>
-                <td>Consistent on CATs, slower on exams</td>
-              </tr>
-              <tr>
-                <td>3 &nbsp; Organic Chemistry</td>
-                <td>Exam 45/60 + Practical 15/20 + CATs 12/20</td>
-                <td>Past: 70%</td>
-                <td>Strong in practical work</td>
-              </tr>
+            <tbody id="semesterOverviewBody">
+              <tr><td colspan="4">Add units above to build your semester overview.</td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="pattern-chip">
           <span class="pattern-icon">◌</span>
-          <span>Overall Pattern: Strong in practicals — Struggling with timed exams</span>
+          <span id="overallPattern">Your study patterns will appear here after the check-in.</span>
         </div>
       </section>
 
@@ -257,15 +240,10 @@
           <span class="mini-icon">✚</span>
           <h3>My Diagnosis For You</h3>
         </div>
-        <p>
-          Alex, thank you for being honest about how the semester has felt. You are not lazy — you care deeply, and you’ve
-          consistently shown up even when things felt overwhelming. Looking across all 3 units, it’s clear that your biggest challenge
-          is not effort but timing and pressure. The pressure creates a mental block that can make it hard to recall what you already know.
-          Your current path is not a failure — it is a pattern you can correct with smarter pacing, better structure, and calmer study habits.
-        </p>
+        <p id="diagnosisText">Complete the check-in to see a reflection based on your answers.</p>
       </section>
 
-      <section class="recommendation-grid">
+      <section class="recommendation-grid" id="recommendations">
         <article class="rec-card">
           <div class="rec-number">1</div>
           <h3>Your 4 Best Recommendations</h3>
@@ -305,10 +283,17 @@
         <div class="plan-box">
           <p>Would you like a sample weekly plan to get started?</p>
           <div class="plan-actions">
-            <button type="button" class="plan-btn primary">Yes, show me a sample</button>
-            <button type="button" class="plan-btn">No, I’ll create my own</button>
+            <button type="button" class="plan-btn primary" id="showSamplePlanBtn">Yes, show me a sample</button>
+            <button type="button" class="plan-btn" id="createOwnPlanBtn">No, I’ll create my own</button>
           </div>
           <small>Note: This is just a recommendation to guide you. You are encouraged to formulate your own plan that fits your life.</small>
+          <div id="planOutput" class="plan-output" aria-live="polite" hidden></div>
+          <div id="ownPlanEditor" class="own-plan-editor" hidden>
+            <label for="ownPlanNotes">Your weekly plan</label>
+            <textarea id="ownPlanNotes" rows="4" maxlength="2000" placeholder="Add study blocks, rest, and commitments..."></textarea>
+            <button type="button" class="plan-btn" id="saveOwnPlanBtn">Save my plan</button>
+            <p id="ownPlanStatus" role="status" aria-live="polite"></p>
+          </div>
         </div>
       </section>
 
@@ -317,7 +302,8 @@
           <span class="mini-icon">✦</span>
           <span>You can do this, Alex. Steady steps now build confident results later.</span>
         </div>
-        <button type="button" class="download-btn">↓ Download Report</button>
+        <a class="back-link" href="page1.html">← Back to dashboard</a>
+        <button type="button" class="download-btn" id="downloadReportBtn" disabled>↓ Download Report</button>
       </footer>
     </main>
   </body>

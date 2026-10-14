@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAVA - Page 1: Semester Tracking & Grades</title>
+
+    <!-- Shared Global Styles -->
+    <link rel="stylesheet" href="../css/global.css">
+
+    <!-- Page 1 Specific Styles -->
+    <link rel="stylesheet" href="../css/page1.css">
+</head>
+<body>
+    <main class="page-shell">
+
+        <header class="topbar">
+            <div class="brand-wrap">
+                <span class="brand-logo">RAVA</span>
+                <span class="brand-separator">|</span>
+                <nav class="nav-links" aria-label="Primary navigation">
+                    <a href="page1.html" aria-current="page">Dashboard</a>
+                    <a href="page2.html#diagnostic-check-in">Assessments</a>
+                    <a href="page2.html#recommendations">Resources</a>
+                    <a href="#personal-info">Profile</a>
+                </nav>
+            </div>
+            <div class="profile-pill">
+                <div class="avatar">AK</div>
+                <span>Alex Kimani</span>
+            </div>
+        </header>
+
+        <div class="banner" aria-label="Profile reminder banner">
+            <p class="banner-copy">
+                Complete your profile to unlock personalized study insights &mdash;
+                <a href="#personal-info">Review profile &rarr;</a>
+            </p>
+        </div>
+
+        <div id="progressBarContainer" class="progress-bar" aria-live="polite">
+            <div class="progress-left">
+                <span class="progress-tag" id="previousUnitsProgress">Progress: 40%</span>
+                <span id="previousUnitsProgressLabel">4 units entered</span>
+            </div>
+            <div class="progress-right">
+                <span>→ Analyze →</span>
+                <span>Final Report</span>
+            </div>
+        </div>
+
+        <section class="card" id="personal-info">
+            <h2 class="card-title">Filters</h2>
+            <div class="field-grid">
+                <div class="field">
+                    <label for="filterYear">Year</label>
+                    <select id="filterYear">
+                        <option value="Year 2" selected>Year 2</option>
+                        <option value="Year 1">Year 1</option>
+                        <option value="Year 3">Year 3</option>
+                        <option value="Year 4">Year 4</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="filterSemester">Semester</label>
+                    <select id="filterSemester">
+                        <option value="Semester 1" selected>Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                        <option value="Semester 3">Semester 3</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="filterUniversity">University</label>
+                    <select id="filterUniversity">
+                        <option value="UoN" selected>University of Nairobi (UoN)</option>
+                        <option value="KU">Kenyatta University (KU)</option>
+                        <option value="JKUAT">JKUAT</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Personal Info</h2>
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>Full Name</span>
+                    <strong>Alex Kimani</strong>
+                </div>
+                <div class="info-box">
+                    <span>University</span>
+                    <strong id="profileUniversity">University of Nairobi</strong>
+                </div>
+                <div class="info-box">
+                    <span>Course</span>
+                    <strong>BSc Mathematics</strong>
+                </div>
+                <div class="info-box">
+                    <span>Year</span>
+                    <strong id="profileYear">Year 2</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="card table-card" id="previous-units">
+            <div class="grade-header">
+                <div>
+                    <h2 class="card-title" style="margin-bottom: 0;">Previous Semester Units</h2>
+                    <small id="semesterContext">Year 2 · Semester 1 · Choose the grading method below.</small>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="unit-table" aria-label="Previous semester units">
+                    <thead>
+                        <tr>
+                            <th>Unit</th>
+                            <th>
+                                <div class="grade-header">
+                                    <span>Grade Input</span>
+                                    <div>
+                                        <small>Method:</small>
+                                        <select id="globalGradeMethodSelect" aria-label="Select global grade method">
+                                            <option value="Percentage" selected>Percentage (0-100)</option>
+                                            <option value="Weights">Letter band (A-E)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="previousUnitsTableBody">
+                        <tr>
+                            <td>Calculus I</td>
+                            <td class="grade-cell"><span class="grade-pill">65 / 100 — 65%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Communication Skills</td>
+                            <td class="grade-cell"><span class="grade-pill">78 / 100 — 78%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Physics</td>
+                            <td class="grade-cell"><span class="grade-pill">55 / 100 — 55%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Chemistry</td>
+                            <td class="grade-cell"><span class="grade-pill">70 / 100 — 70%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <form id="addPreviousUnitForm" class="add-unit-form">
+                <div class="field">
+                    <label for="previousUnitName">Unit name</label>
+                    <input id="previousUnitName" name="unitName" type="text" maxlength="80" required placeholder="e.g. Linear Algebra">
+                </div>
+                <div class="field">
+                    <label for="previousUnitGrade">Grade (%)</label>
+                    <input id="previousUnitGrade" name="grade" type="number" min="0" max="100" step="1" required value="70">
+                </div>
+                <button id="addUnitRowBtn" class="secondary-btn" type="submit">+ Add Unit</button>
+            </form>
+        </section>
+
+        <section class="summary-strip">
+            <strong>Summary Metrics</strong>
+            <div id="summaryDisplayText">
+                Average <strong>67%</strong> | Best <strong>Communication Skills 78%</strong> | Lowest <strong>Physics 55%</strong>
+            </div>
+        </section>
+
+        <footer class="footer-bar">
+            <div class="draft-actions">
+                <button id="saveDraftBtn" class="ghost-btn" type="button">Save Draft</button>
+                <span id="draftStatus" role="status" aria-live="polite"></span>
+            </div>
+            <div class="footer-actions">
+                <button id="continueToPage2Btn" class="primary-btn" type="button">Continue to Page 2 →</button>
+            </div>
+        </footer>
+    </main>
+
+    <script src="../js/page1.js"></script>
+</body>
+</html>
