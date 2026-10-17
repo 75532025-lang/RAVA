@@ -18,6 +18,7 @@
 
         <header class="topbar">
             <div class="brand-wrap">
+                <img class="brand-mark" src="../assets/rava-logo.jpg" alt="">
                 <span class="brand-logo">RAVA</span>
             </div>
             <nav class="nav-links" aria-label="Primary navigation">
@@ -95,20 +96,17 @@
                         </select>
                     </div>
                     <div class="field">
-                        <label for="previousStudyYear">Previous study year</label>
-                        <select id="previousStudyYear" name="previousStudyYear" required>
-                            <option value="">Choose year</option>
-                            <option value="Year 1">Year 1</option>
-                            <option value="Year 2">Year 2</option>
-                            <option value="Year 3">Year 3</option>
-                            <option value="Year 4">Year 4</option>
-                            <option value="Year 5">Year 5</option>
-                            <option value="Year 6">Year 6</option>
-                        </select>
-                    </div>
-                    <div class="field">
                         <label for="previousAcademicYear">Previous academic year</label>
-                        <input id="previousAcademicYear" name="previousAcademicYear" type="text" maxlength="20" required placeholder="e.g. 2025/2026">
+                        <select id="previousAcademicYear" name="previousAcademicYear" required>
+                            <option value="">Choose academic year</option>
+                            <option value="2020/2021">2020/2021</option>
+                            <option value="2021/2022">2021/2022</option>
+                            <option value="2022/2023">2022/2023</option>
+                            <option value="2023/2024">2023/2024</option>
+                            <option value="2024/2025">2024/2025</option>
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="2026/2027">2026/2027</option>
+                        </select>
                     </div>
                     <div class="field">
                         <label for="previousSemester">Previous semester</label>
@@ -146,7 +144,7 @@
                             <input id="previousUnitGrade" type="text" inputmode="decimal" placeholder="e.g. 68" aria-label="Grade value" aria-describedby="previousGradeHint">
                             <small id="previousGradeHint">Enter a percentage from 0 to 100.</small>
                         </div>
-                        <button class="secondary-btn" id="addPreviousUnitBtn" type="button">Add  unit</button>
+                        <button class="secondary-btn" id="addPreviousUnitBtn" type="button">Add unit</button>
                     </div>
                     <div class="table-wrap previous-table-wrap">
                         <table class="previous-units-table" aria-label="Previous semester unit grades">

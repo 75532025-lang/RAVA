@@ -4,8 +4,7 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
 } else {
   const profile = activeProfile.profile;
   const currentSemester = activeProfile.currentSemester || {};
-  const previousHistory = profile.previousSemester || {};
-  const previousUnits = Array.isArray(previousHistory.units) ? previousHistory.units : [];
+  const previousUnits = Array.isArray(profile.previousSemester?.units) ? profile.previousSemester.units : [];
   const answers = activeProfile.quizAnswers || {};
   let units = Array.isArray(activeProfile.units) ? activeProfile.units : [];
 
@@ -192,66 +191,70 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     });
   }
 
-  const recommendationGuides = [
-    { matches: ['Timed exams'], title: 'Practise exam pacing', why: 'A timer can make it harder to think clearly, even when you know the material. Short practice makes the format more familiar.', action: 'Try a small set of timed questions, then review your working before increasing the difficulty.' },
-    { matches: ['Understanding concepts', "Didn't understand topics"], title: 'Make concepts easier to retrieve', why: 'Rereading can feel familiar without showing which parts you can explain on your own.', action: 'Close your notes and explain one idea in plain words. Reopen them only to fill the gaps.' },
-    { matches: ['Cramming / Procrastination', 'Crammed last minute'], title: 'Break revision into smaller visits', why: 'Leaving everything until the end creates pressure and makes details harder to remember.', action: 'Choose one small topic for a 20-minute session, then revisit it later in the week.' },
-    { matches: ['Sleep / Stress', 'Stressed / Slept badly'], title: 'Protect rest while you study', why: 'Rest supports attention and memory. A plan with no recovery time is difficult to keep.', action: 'Choose a realistic stopping time and leave a short wind-down before bed.' },
-    { matches: ['Skipping CATs'], title: 'Prepare for assessments in small steps', why: 'Short preparation is easier to start and gives you more chances to notice questions.', action: 'Schedule two brief practice blocks before the next assessment.' },
-    { matches: ['Too many units'], title: 'Rotate subjects with a simple plan', why: 'Trying to study everything at once can make it hard to choose a next step.', action: 'Pick two or three subjects for each day and write one specific task for each.' },
-    { matches: ["Didn't plan ahead"], title: 'Use a short weekly reset', why: 'Seeing deadlines and study blocks together makes the week feel more manageable.', action: 'List deadlines at the start of the week and reserve a few realistic study blocks.' }
+  const studyMethods = [
+    { title: 'Run a 12-minute recall sprint', why: 'Pulling an idea from memory strengthens your ability to find it later and quickly reveals the exact part that still feels uncertain. It is a more useful check than rereading a page and mistaking familiarity for understanding.', method: 'Choose one concept, close your notes, and write or sketch everything you remember for 8 minutes. Spend 4 minutes checking the gaps and turn one gap into a question for your next session.' },
+    { title: 'Climb a practice-question ladder', why: 'Moving from a warm-up question to a more demanding one builds confidence without hiding the steps that need work. A short sequence also gives you a clear sense of progress in one sitting.', method: 'Try one basic question, two standard problems, then one stretch question. Mark the first step that slowed you down and revisit that step before moving to a harder set.' },
+    { title: 'Keep a tiny error detective log', why: 'Mistakes are most useful when you can see their pattern, such as a missed definition, rushed calculation, or unclear instruction. Naming the pattern gives your next practice session a specific purpose.', method: 'After a problem, note the topic, what went wrong, and the corrected first step in three short lines. Rework the question a day later without looking at the correction.' },
+    { title: 'Space the same idea across the week', why: 'Returning to an idea after a little time has passed asks your memory to work again, which helps knowledge last longer than a single long cram session. Short reviews are also easier to fit around other units.', method: 'Give one topic a 15-minute review today, a 10-minute recall tomorrow, and a quick question set later in the week. Stop when you meet your planned time; consistency beats an exhausting marathon.' },
+    { title: 'Teach it back in plain language', why: 'Explaining an idea simply makes hidden leaps in your understanding easier to notice. It also turns passive notes into a structure you can use when answering a question.', method: 'Explain one concept aloud as if helping a classmate, using a small example or sketch. When you get stuck, check only that section of your notes, then restart the explanation from the beginning.' }
   ];
 
-  function guideForUnit(unit, index) {
+  const challengeMethods = [
+    { matches: ['Timed exams'], title: 'Practise a calm timed round', why: 'Short timed practice makes the exam format more familiar while keeping the pressure manageable. Reviewing the attempt afterward teaches pacing more reliably than timing alone.', method: 'Choose three representative questions and set a gentle time limit. Circle any question where you stalled, then retry it untimed and write down one pacing decision to test next time.' },
+    { matches: ['Understanding concepts', "Didn't understand topics"], title: 'Build a concept map from one question', why: 'Connecting a definition to an example and a common mistake gives the idea more than one route into memory. It can also show whether the difficulty is vocabulary, a missing prerequisite, or an unclear process.', method: 'Put one concept in the middle of a page and connect it to a definition, a worked example, and one question you still have. Use the map to guide a focused help request or a short follow-up review.' },
+    { matches: ['Cramming / Procrastination', 'Crammed last minute'], title: 'Make the first step almost too small', why: 'A tiny, clearly defined start lowers the effort of beginning and creates momentum without requiring a perfect study mood. Repeating small starts makes it less likely that revision piles up at the deadline.', method: 'Write a 15-minute task such as solving two questions or summarising one lecture. Put it beside an existing routine, and decide in advance whether to continue or stop when the timer ends.' },
+    { matches: ['Sleep / Stress', 'Stressed / Slept badly'], title: 'Use a low-pressure recovery session', why: 'Attention and memory are harder to use when you are exhausted, so adding more hours can produce less learning. A shorter session protects rest while still keeping the unit familiar.', method: 'Pick one light task, such as reviewing flashcards or organising questions, and set a clear stopping time. Leave a short wind-down afterward; move demanding practice to a time when you feel more rested.' },
+    { matches: ['Skipping CATs'], title: 'Turn CAT preparation into checkpoints', why: 'Several small checkpoints make it easier to notice weak topics before the assessment and reduce the need for last-minute catch-up. Each checkpoint produces something concrete to review.', method: 'Schedule two brief sessions before the next CAT: one for recalling key ideas and one for attempting questions. After each, choose a single gap to ask about or practise again.' },
+    { matches: ['Too many units'], title: 'Rotate units with a visible finish line', why: 'A bounded task for each unit makes a busy week feel more navigable and reduces the time spent deciding what to do. Switching after a planned block also gives different subjects attention without pretending you can do everything at once.', method: 'Choose up to three units for a study day and write one finishable task beside each. Complete one focused block per unit, then stop and move the remaining tasks to another day.' },
+    { matches: ["Didn't plan ahead"], title: 'Set up a 10-minute weekly reset', why: 'A quick look at deadlines and available time turns a vague intention into a workable sequence. Planning only the next few steps leaves room for changes rather than making the week feel overbooked.', method: 'At the start of the week, list deadlines, choose three priority tasks, and place short study blocks around existing commitments. Leave at least one buffer block for anything that takes longer than expected.' }
+  ];
+
+  function guideForUnit(unit) {
     const challenges = [...(answers.q4 || []), ...(answers.q6 || [])];
-    const matching = recommendationGuides.filter((guide) => guide.matches.some((item) => challenges.includes(item)));
-    if (matching.length) return matching[index % matching.length];
+    const selected = challengeMethods.filter((guide) => guide.matches.some((item) => challenges.includes(item)));
     const previous = getPreviousUnit(unit.name);
     if (previous && previousGradeType(previous) === 'percent' && Number(previous.grade) < 60) {
-      return {
-        title: 'Build this unit from its foundations',
-        why: `Your previous ${unit.name} mark was ${previousGradeLabel(previous)}. That is useful information, not a judgement about your ability.`,
-        action: 'Review one core idea, try a few practice questions, and ask for help with the first unclear step.'
-      };
+      selected.push({
+        title: 'Rebuild one foundation at a time',
+        why: `Your previous ${unit.name} mark was ${previousGradeLabel(previous)}. Treat that as a clue about which foundations may need attention, not as a limit on what you can learn next.`,
+        method: 'Choose one prerequisite topic, review a worked example, and solve two similar questions with notes available. Later, retry one question from memory and ask a tutor or classmate about the first step that still feels unclear.'
+      });
     }
-    return {
-      title: 'Keep a steady rhythm in this unit',
-      why: 'Regular short review gives you more chances to notice confusion before it grows.',
-      action: `Choose one ${unit.name} topic, practise recalling it, and return to it later in the week.`
-    };
+    studyMethods.forEach((guide) => {
+      if (!selected.some((item) => item.title === guide.title)) selected.push({ ...guide });
+    });
+    return selected.slice(0, 5);
+  }
+
+  function appendRecommendationText(container, label, text, className) {
+    const paragraph = makeElement('p', className);
+    const strong = makeElement('strong', '', `${label}: `);
+    paragraph.append(strong, document.createTextNode(text));
+    container.appendChild(paragraph);
   }
 
   function renderRecommendations() {
     const container = document.getElementById('recommendationList');
     container.replaceChildren();
     units.forEach((unit, index) => {
-      const guide = guideForUnit(unit, index);
-      const card = makeElement('article', 'recommendation-item');
-      card.append(
-        makeElement('span', 'recommendation-number', String(index + 1)),
-        makeElement('h3', '', `${unit.name}: ${guide.title}`),
-        makeElement('p', 'recommendation-why', `Why: ${guide.why}`),
-        makeElement('p', 'recommendation-action', `Try this: ${guide.action}`)
+      const group = makeElement('article', 'unit-recommendation-group');
+      const heading = makeElement('div', 'unit-recommendation-heading');
+      heading.append(
+        makeElement('span', 'recommendation-number', String(index + 1).padStart(2, '0')),
+        makeElement('h3', '', `${unit.name}: five ways forward`)
       );
-      container.appendChild(card);
+      group.append(heading, makeElement('p', 'unit-recommendation-intro', 'Pick one method for your next study block, then mix in another when your focus needs a change of pace.'));
+      const list = makeElement('ol', 'unit-recommendations');
+      guideForUnit(unit).forEach((guide) => {
+        const item = makeElement('li', 'unit-recommendation');
+        item.appendChild(makeElement('h4', '', guide.title));
+        appendRecommendationText(item, 'Why it helps', guide.why, 'recommendation-why');
+        appendRecommendationText(item, 'How to try it', guide.method, 'recommendation-method');
+        list.appendChild(item);
+      });
+      group.appendChild(list);
+      container.appendChild(group);
     });
-
-    const challenges = [...(answers.q4 || []), ...(answers.q6 || [])];
-    const strengths = [...(answers.q5 || [])];
-    const reason = challenges.length
-      ? `You named ${challenges.join(', ').toLowerCase()} as difficult. Small, repeatable steps can lower pressure and help you see progress.`
-      : 'A predictable routine reduces the effort it takes to decide what to study next.';
-    const nextStep = strengths.length
-      ? `Build on ${strengths.join(', ').toLowerCase()} by reserving a regular study time and leaving breaks between subjects.`
-      : 'Choose a regular study time, work in short blocks, and leave room for rest and other responsibilities.';
-    const general = makeElement('article', 'recommendation-item general-recommendation');
-    general.append(
-      makeElement('span', 'recommendation-number', '•'),
-      makeElement('h3', '', 'A steady plan for the whole semester'),
-      makeElement('p', 'recommendation-why', `Why: ${reason}`),
-      makeElement('p', 'recommendation-action', `Try this: ${nextStep}`)
-    );
-    container.appendChild(general);
   }
 
   function updateTargetViews() {
@@ -306,39 +309,89 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
   function buildReport() {
     reportOutput.replaceChildren();
     reportOutput.hidden = false;
-    reportOutput.appendChild(makeElement('h3', '', `Academic progress report for ${window.RavaStore.firstName(profile.fullName)}`));
-    reportOutput.appendChild(makeElement('p', '', `Prepared ${new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date())}. This study-planning report is based on your self-reported check-in and goals; it is not a clinical diagnosis.`));
-    reportOutput.appendChild(makeElement('h4', '', 'Semester overview'));
-    reportOutput.appendChild(makeElement('p', '', `${profile.course}, ${profile.yearOfStudy} · ${currentSemester.semester}, ${currentSemester.academicYear} · ${units.length} units`));
-    reportOutput.appendChild(makeElement('h4', '', 'Previous academic context'));
-    reportOutput.appendChild(makeElement('p', '', [previousHistory.studyYear, previousHistory.academicYear, previousHistory.semester].filter(Boolean).join(' · ') || 'No previous-semester details recorded.'));
+    const reportHeader = makeElement('header', 'report-heading');
+    reportHeader.append(
+      makeElement('p', 'report-kicker', 'RAVA · YOUR SEMESTER FIELD GUIDE'),
+      makeElement('h3', '', `A bright plan for ${window.RavaStore.firstName(profile.fullName)}`),
+      makeElement('p', 'report-lead', `Prepared ${new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date())}. A practical snapshot of your goals, study patterns, and next steps.`)
+    );
+    reportOutput.appendChild(reportHeader);
+
+    function appendReportSection(title, className) {
+      const section = makeElement('section', `report-block ${className}`);
+      section.appendChild(makeElement('h4', '', title));
+      reportOutput.appendChild(section);
+      return section;
+    }
+
+    const overview = appendReportSection('Your semester at a glance', 'report-overview');
+    const overviewGrid = makeElement('div', 'report-overview-grid');
+    [
+      ['Course', profile.course],
+      ['Study year', profile.yearOfStudy],
+      ['Current term', `${currentSemester.semester}, ${currentSemester.academicYear}`],
+      ['Units', String(units.length)]
+    ].forEach(([label, value]) => {
+      const stat = makeElement('div', 'report-stat');
+      stat.append(makeElement('span', '', label), makeElement('strong', '', value));
+      overviewGrid.appendChild(stat);
+    });
+    overview.appendChild(overviewGrid);
+
+    const history = profile.previousSemester || {};
+    const previousDetails = [history.academicYear, history.semester].filter(Boolean).join(' · ');
+    if (previousDetails || previousUnits.length) {
+      const previousSection = appendReportSection('A little context from last term', 'report-history');
+      previousSection.appendChild(makeElement('p', '', previousDetails || 'Previous-term dates were not recorded.'));
+    }
     const percentGrades = percentageHistory();
     if (percentGrades.length) {
       const average = percentGrades.reduce((total, unit) => total + Number(unit.grade), 0) / percentGrades.length;
-      reportOutput.appendChild(makeElement('p', '', `Previous percentage grades averaged ${average.toFixed(1)}% across ${percentGrades.length} units. Use this as context, not a limit.`));
+      const historySection = reportOutput.querySelector('.report-history') || appendReportSection('A little context from last term', 'report-history');
+      historySection.appendChild(makeElement('p', '', `Previous percentage grades averaged ${average.toFixed(1)}% across ${percentGrades.length} units. Treat that as a starting point, not a ceiling.`));
     }
-    reportOutput.appendChild(makeElement('h4', '', 'Your check-in and current pattern'));
-    reportOutput.appendChild(makeElement('p', '', document.getElementById('diagnosisText').textContent));
-    reportOutput.appendChild(makeElement('h4', '', 'Unit distributions and targets'));
-    const targets = document.createElement('ul');
+
+    const pattern = appendReportSection('What your check-in says', 'report-pattern');
+    pattern.appendChild(makeElement('p', '', document.getElementById('diagnosisText').textContent));
+
+    const targetsSection = appendReportSection('Your unit targets', 'report-targets');
+    const targets = makeElement('div', 'report-target-list');
     units.forEach((unit) => {
-      const breakdown = unit.components.map((component) => `${component.name}: target ${component.target} of ${component.outOf}`).join('; ');
+      const unitCard = makeElement('article', 'report-target-unit');
+      unitCard.appendChild(makeElement('h5', '', unit.name));
+      const componentList = document.createElement('ul');
+      unit.components.forEach((component) => componentList.appendChild(makeElement('li', '', `${component.name}: aim for ${component.target} of ${component.outOf}`)));
       const previous = getPreviousUnit(unit.name);
-      targets.appendChild(makeElement('li', '', `${unit.name} — ${breakdown}${previous ? `; previous mark ${previousGradeLabel(previous)}` : ''}.`));
+      if (previous) unitCard.appendChild(makeElement('p', 'report-previous-mark', `Last result: ${previousGradeLabel(previous)}`));
+      unitCard.appendChild(componentList);
+      targets.appendChild(unitCard);
     });
-    reportOutput.appendChild(targets);
-    reportOutput.appendChild(makeElement('h4', '', 'Recommendations and why they may help'));
-    const recommendations = document.createElement('ul');
-    document.querySelectorAll('.recommendation-item').forEach((card) => {
-      recommendations.appendChild(makeElement('li', '', `${card.querySelector('h3')?.textContent || ''}. ${card.querySelector('.recommendation-why')?.textContent || ''} ${card.querySelector('.recommendation-action')?.textContent || ''}`));
+    targetsSection.appendChild(targets);
+
+    const recommendationsSection = appendReportSection('Five ways forward for each unit', 'report-recommendations');
+    document.querySelectorAll('.unit-recommendation-group').forEach((group) => {
+      const unitRecommendations = makeElement('section', 'report-recommendation-unit');
+      unitRecommendations.appendChild(makeElement('h5', '', group.querySelector('h3')?.textContent || 'Unit recommendations'));
+      const list = document.createElement('ol');
+      group.querySelectorAll('.unit-recommendation').forEach((item) => {
+        const reportItem = document.createElement('li');
+        reportItem.append(
+          makeElement('h6', '', item.querySelector('h4')?.textContent || 'Study method'),
+          makeElement('p', '', item.querySelector('.recommendation-why')?.textContent || ''),
+          makeElement('p', '', item.querySelector('.recommendation-method')?.textContent || '')
+        );
+        list.appendChild(reportItem);
+      });
+      unitRecommendations.appendChild(list);
+      recommendationsSection.appendChild(unitRecommendations);
     });
-    reportOutput.appendChild(recommendations);
+
     const savedWeeklyPlan = window.RavaStore.getActiveProfile()?.weeklyPlan;
     if (savedWeeklyPlan?.trim()) {
-      reportOutput.appendChild(makeElement('h4', '', 'Your weekly plan'));
-      reportOutput.appendChild(makeElement('p', '', savedWeeklyPlan));
+      const planSection = appendReportSection('Your weekly rhythm', 'report-weekly-plan');
+      planSection.appendChild(makeElement('p', '', savedWeeklyPlan));
     }
-    reportOutput.appendChild(makeElement('p', 'report-note', 'Targets are a starting point. Adjust them when course requirements or circumstances change, and ask a lecturer, tutor, or student-support professional for help when needed.'));
+    reportOutput.appendChild(makeElement('p', 'report-note', 'Small, repeatable steps add up. Adjust this guide to fit your week, celebrate progress, and keep going one useful session at a time.'));
   }
 
   function syncReportState() {
@@ -349,34 +402,93 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     reportStatus.textContent = !allTargetsAreValid()
       ? 'Enter a valid target for every component before generating the report.'
       : reportReady
-        ? 'Your report is complete and ready to download.'
+        ? 'Your report is ready to save as a PDF.'
         : 'Targets are complete. Generate the report to finish the final step.';
   }
 
-  document.getElementById('showSamplePlanBtn').addEventListener('click', () => {
-    const output = document.getElementById('planOutput');
-    output.replaceChildren();
-    output.hidden = false;
-    document.getElementById('ownPlanEditor').hidden = true;
-    output.appendChild(makeElement('h3', '', 'A flexible week to adapt'));
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const list = document.createElement('ul');
-    days.forEach((day, index) => {
+  const samplePlanButton = document.getElementById('showSamplePlanBtn');
+  const ownPlanButton = document.getElementById('createOwnPlanBtn');
+  const samplePlanOutput = document.getElementById('planOutput');
+  const ownPlanEditor = document.getElementById('ownPlanEditor');
+
+  function setPlanButtonState(button, expanded, openText, closedText) {
+    button.setAttribute('aria-expanded', String(expanded));
+    button.textContent = expanded ? openText : closedText;
+  }
+
+  function renderSampleWeek() {
+    const schedule = [
+      { day: 'Monday', theme: 'Kickoff', activity: 'Warm up with a quick recall sprint, then pick one question to get the week moving.', minutes: 25 },
+      { day: 'Tuesday', theme: 'Practice lab', activity: 'Work through a small set of questions and note one useful mistake to learn from.', minutes: 30 },
+      { day: 'Wednesday', theme: 'Switch the angle', activity: 'Teach a tricky idea back in plain language, using a sketch or example.', minutes: 20 },
+      { day: 'Thursday', theme: 'Mini challenge', activity: 'Try a short timed round, then review the steps that felt smooth and the ones to revisit.', minutes: 30 },
+      { day: 'Friday', theme: 'Progress check', activity: 'Redo one question from memory and give yourself credit for what is clearer now.', minutes: 20 },
+      { day: 'Saturday', theme: 'Choose-your-focus', activity: 'Take one longer block for the unit that needs attention, with a proper break in the middle.', minutes: 45 },
+      { day: 'Sunday', theme: 'Reset and recharge', activity: 'Keep it light: glance over the week, choose a first task for Monday, then enjoy your rest.', minutes: 10 }
+    ];
+    const grid = makeElement('div', 'week-plan-grid');
+    const planLines = [];
+    schedule.forEach((item, index) => {
       const unit = units[index % units.length];
-      list.appendChild(makeElement('li', '', `${day}: ${index === 6 ? 'Rest and review the week' : `Review ${unit.name} with active recall`}`));
+      const unitName = unit?.name || 'a priority unit';
+      const card = makeElement('article', 'week-plan-day');
+      card.append(
+        makeElement('p', 'week-plan-day-label', item.day),
+        makeElement('h4', '', item.theme),
+        makeElement('p', 'week-plan-unit', unitName),
+        makeElement('p', 'week-plan-activity', item.activity),
+        makeElement('span', 'week-plan-time', `${item.minutes} min`)
+      );
+      grid.appendChild(card);
+      planLines.push(`${item.day} · ${item.theme} (${item.minutes} min) — ${unitName}. ${item.activity}`);
     });
-    output.appendChild(list);
+    samplePlanOutput.append(
+      makeElement('h3', '', 'A week with room to breathe'),
+      makeElement('p', 'week-plan-intro', 'Short, varied sessions keep the week moving. Swap days around when life happens; the goal is a rhythm, not a perfect streak.'),
+      grid
+    );
+    const updated = window.RavaStore.updateActiveProfile({ weeklyPlan: planLines.join('\n'), reportGenerated: false });
+    if (updated) {
+      reportOutput.replaceChildren();
+      reportOutput.hidden = true;
+      syncReportState();
+    }
+  }
+
+  samplePlanButton.addEventListener('click', () => {
+    if (!samplePlanOutput.hidden) {
+      samplePlanOutput.hidden = true;
+      setPlanButtonState(samplePlanButton, false, 'Hide sample week', 'Show a sample week');
+      return;
+    }
+    if (!samplePlanOutput.childElementCount) renderSampleWeek();
+    ownPlanEditor.hidden = true;
+    setPlanButtonState(ownPlanButton, false, 'Hide my plan', 'Write my own plan');
+    samplePlanOutput.hidden = false;
+    setPlanButtonState(samplePlanButton, true, 'Hide sample week', 'Show a sample week');
   });
 
-  document.getElementById('createOwnPlanBtn').addEventListener('click', () => {
-    document.getElementById('planOutput').hidden = true;
-    document.getElementById('ownPlanEditor').hidden = false;
+  ownPlanButton.addEventListener('click', () => {
+    if (!ownPlanEditor.hidden) {
+      ownPlanEditor.hidden = true;
+      setPlanButtonState(ownPlanButton, false, 'Hide my plan', 'Write my own plan');
+      return;
+    }
+    samplePlanOutput.hidden = true;
+    setPlanButtonState(samplePlanButton, false, 'Hide sample week', 'Show a sample week');
+    ownPlanEditor.hidden = false;
+    setPlanButtonState(ownPlanButton, true, 'Hide my plan', 'Write my own plan');
     document.getElementById('ownPlanNotes').focus();
   });
 
   document.getElementById('saveOwnPlanBtn').addEventListener('click', () => {
-    const updated = window.RavaStore.updateActiveProfile({ weeklyPlan: document.getElementById('ownPlanNotes').value });
+    const updated = window.RavaStore.updateActiveProfile({ weeklyPlan: document.getElementById('ownPlanNotes').value, reportGenerated: false });
     document.getElementById('ownPlanStatus').textContent = updated ? 'Your plan is saved with your profile.' : 'Your plan could not be saved in this browser.';
+    if (updated) {
+      reportOutput.replaceChildren();
+      reportOutput.hidden = true;
+      syncReportState();
+    }
   });
 
   generateButton.addEventListener('click', () => {
@@ -390,16 +502,12 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
   downloadButton.addEventListener('click', () => {
     const latest = window.RavaStore.getActiveProfile();
     if (!latest?.reportGenerated || !allTargetsAreValid() || window.RavaStore.calculateWorkflowProgress(latest) !== 100) return;
-    const report = `RAVA ACADEMIC REPORT\n\n${reportOutput.innerText}\n`;
-    const file = new Blob([report], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(file);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rava-report-${window.RavaStore.firstName(profile.fullName).replace(/[^a-z0-9-]+/gi, '-').toLowerCase()}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const oldTitle = document.title;
+    const safeName = window.RavaStore.firstName(profile.fullName).replace(/[^a-z0-9-]+/gi, '-').toLowerCase();
+    document.title = `RAVA-semester-guide-${safeName}`;
+    window.addEventListener('afterprint', () => { document.title = oldTitle; }, { once: true });
+    reportStatus.textContent = 'In the print dialog, choose Save as PDF to download your report.';
+    window.print();
   });
 
   function initialize() {

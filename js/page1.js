@@ -10,7 +10,7 @@ const previousUnitNameInput = document.getElementById('previousUnitName');
 const previousUnitGradeInput = document.getElementById('previousUnitGrade');
 const gradeScaleSelect = document.getElementById('gradeScaleSelect');
 const previousGradeHint = document.getElementById('previousGradeHint');
-const profileFieldNames = ['fullName', 'university', 'course', 'yearOfStudy', 'previousStudyYear', 'previousAcademicYear'];
+const profileFieldNames = ['fullName', 'university', 'course', 'yearOfStudy', 'previousAcademicYear'];
 const profileFields = {
   ...Object.fromEntries(profileFieldNames.map((name) => [name, document.getElementById(name)])),
   previousSemester: document.getElementById('previousSemester')
@@ -61,7 +61,6 @@ function readProfileForm() {
   return {
     ...Object.fromEntries(profileFieldNames.map((name) => [name, profileFields[name].value.trim()])),
     previousSemester: {
-      studyYear: profileFields.previousStudyYear.value.trim(),
       academicYear: profileFields.previousAcademicYear.value.trim(),
       semester: profileFields.previousSemester.value.trim(),
       units: previousUnits.map((unit) => ({ ...unit }))
@@ -81,7 +80,8 @@ function setProfileForm(profile) {
 function profileMatchesForm(profile) {
   if (!profile) return false;
   const current = readProfileForm();
-  const savedPrevious = profile.previousSemester || {};
+  const savedPrevious = { ...(profile.previousSemester || {}) };
+  delete savedPrevious.studyYear;
   return profileFieldNames.every((name) => profile[name] === current[name]) &&
     JSON.stringify({ ...savedPrevious, units: normalizePreviousUnits(savedPrevious.units) }) === JSON.stringify(current.previousSemester);
 }

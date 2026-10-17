@@ -32,19 +32,14 @@ if (!activeProfile?.profileSaved) {
   const componentChoices = ['Exam', 'CATs', 'Lab practicals', 'Assignments', 'RATs', 'Group work'];
 
   function populateAcademicYears(savedYear = '') {
-    const currentYear = new Date().getFullYear();
-    const startingYears = new Set(Array.from({ length: 9 }, (_, index) => currentYear - 4 + index));
-    const savedMatch = String(savedYear).match(/^(\d{4})\/(\d{4})$/);
-    if (savedMatch) startingYears.add(Number(savedMatch[1]));
     currentAcademicYearInput.replaceChildren(new Option('Choose academic year', ''));
-    [...startingYears].sort((a, b) => a - b).forEach((year) => {
+    for (let year = 2020; year <= 2026; year += 1) {
       const value = `${year}/${year + 1}`;
       currentAcademicYearInput.add(new Option(value, value));
-    });
-    if (savedYear && ![...currentAcademicYearInput.options].some((option) => option.value === savedYear)) {
-      currentAcademicYearInput.add(new Option(savedYear, savedYear));
     }
-    currentAcademicYearInput.value = savedYear || '';
+    currentAcademicYearInput.value = [...currentAcademicYearInput.options].some((option) => option.value === savedYear)
+      ? savedYear
+      : '';
   }
 
   populateAcademicYears(currentSemester.academicYear || '');

@@ -249,6 +249,10 @@
   color: var(--text);
 }
 
+.field .grade-field-heading select {
+  min-height: 36px;
+}
+
 #previousGradeHint {
   color: var(--muted);
   font-size: 0.76rem;

@@ -14,9 +14,9 @@ Then open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/p
 
 ## Project map
 
-- `pages/page1.html` is Home, where each person creates or selects a saved profile and records previous-semester study year, academic year, semester, and optional unit grades.
+- `pages/page1.html` is Home, where each person creates or selects a saved profile and records the previous academic year, semester, and optional unit grades. Academic-year options currently run through 2026/2027.
 - `pages/page2.html` is Assessment, where the current academic year, semester, expected unit count, component mark distributions, and all eight diagnostic answers are entered. Custom distributions are configured in a modal.
-- `pages/page3.html` moves the live check-in summary, accepts a target for every component, analyzes results, provides unit-specific and general recommendations, and generates the final report.
+- `pages/page3.html` moves the live check-in summary, accepts a target for every component, analyzes results, provides five detailed recommendations per unit, supports reusable weekly plans, and prints the final report to PDF.
 - `css/global.css` provides the shared beige/medium-grey palette, responsive navigation, progress strip, typography, and focus styles.
 - `css/page1.css`, `css/page2.css`, and `css/page3.css` contain each page's responsive layout and controls.
 - `js/shared.js` manages profile storage, switching, shared navigation, and workflow progress.
@@ -26,7 +26,7 @@ Then open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/p
 
 ## Data and privacy
 
-The project has no server or external dependencies. Each profile and its planner data are stored in the current browser's local storage, and Home provides a profile switcher for people sharing that browser. This is convenient separation, not account security: anyone using the same browser profile can access its saved records. For private, cross-device accounts, connect the project to an authenticated backend. Clearing browser data removes locally saved profiles. The report download is a plain-text file generated in the browser.
+The project has no server or external dependencies. Each profile and its planner data are stored in the current browser's local storage, and Home provides a profile switcher for people sharing that browser. This is convenient separation, not account security: anyone using the same browser profile can access its saved records. For private, cross-device accounts, connect the project to an authenticated backend. Clearing browser data removes locally saved profiles. The report's Download PDF button opens the browser print dialog; choose Save as PDF there.
 
 ## Assessment rules
 

@@ -12,7 +12,7 @@
   <body data-page="findings">
     <main class="page-shell">
       <header class="topbar">
-        <div class="brand-wrap"><span class="brand-logo">RAVA</span></div>
+        <div class="brand-wrap"><img class="brand-mark" src="../assets/rava-logo.jpg" alt=""><span class="brand-logo">RAVA</span></div>
         <nav class="nav-links" aria-label="Primary navigation">
           <a href="page1.html">Home</a>
           <a href="page2.html" data-required="profile">Assessments</a>
@@ -92,8 +92,8 @@
         </div>
         <p class="section-intro">Choose a flexible starting point or write a plan that suits your schedule.</p>
         <div class="plan-actions">
-          <button type="button" class="secondary-btn" id="showSamplePlanBtn">Show a sample week</button>
-          <button type="button" class="secondary-btn" id="createOwnPlanBtn">Write my own plan</button>
+          <button type="button" class="secondary-btn" id="showSamplePlanBtn" aria-controls="planOutput" aria-expanded="false">Show a sample week</button>
+          <button type="button" class="secondary-btn" id="createOwnPlanBtn" aria-controls="ownPlanEditor" aria-expanded="false">Write my own plan</button>
         </div>
         <div id="planOutput" class="plan-output" aria-live="polite" hidden></div>
         <div id="ownPlanEditor" class="own-plan-editor" hidden>
@@ -114,7 +114,7 @@
         <p id="reportStatus" role="status" aria-live="polite">Complete all assessment questions and add a valid unit to generate your report.</p>
         <div class="report-actions">
           <button type="button" class="primary-btn" id="generateReportBtn" disabled>Generate final report</button>
-          <button type="button" class="secondary-btn" id="downloadReportBtn" disabled>Download report</button>
+          <button type="button" class="secondary-btn" id="downloadReportBtn" disabled>Download PDF</button>
         </div>
         <article id="reportOutput" class="report-output" aria-live="polite" hidden></article>
       </section>
