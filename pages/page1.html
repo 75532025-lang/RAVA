@@ -29,7 +29,6 @@
             <div class="profile-pill">
                 <div class="avatar" id="profileAvatar">--</div>
                 <span id="profileName">Guest</span>
-                <select class="profile-switcher" aria-label="Switch profile" title="Switch profile"></select>
             </div>
             <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
         </header>
@@ -63,7 +62,10 @@
             </div>
 
             <div class="profile-picker" id="profilePicker" hidden>
-                <button class="secondary-btn" id="newProfileBtn" type="button">New person</button>
+                <div class="field">
+                    <label for="savedProfileSelect">Switch or add a profile</label>
+                    <select id="savedProfileSelect" aria-label="Switch or add a profile"></select>
+                </div>
             </div>
 
             <form id="profileForm" class="profile-form">

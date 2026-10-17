@@ -21,6 +21,20 @@ function getActiveProfile() {
   return id ? readProfileIndex()[id] || null : null;
 }
 
+function getProfileById(id) {
+  return readProfileIndex()[id] || null;
+}
+
+function setActiveProfile(id) {
+  if (!getProfileById(id)) return false;
+  try {
+    localStorage.setItem(RAVA_ACTIVE_PROFILE, id);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function firstName(fullName) {
   return String(fullName || '').trim().split(/\s+/)[0] || 'Guest';
 }
@@ -123,30 +137,34 @@ function renderNavigationNotice(message) {
 }
 
 function renderProfileSwitcher() {
-  const picker = document.getElementById('profilePicker');
   const profiles = readProfileIndex();
   const entries = Object.values(profiles).filter((entry) => entry?.profile?.fullName);
-  if (picker) picker.hidden = entries.length === 0;
+  const picker = document.getElementById('profilePicker');
+  const select = document.getElementById('savedProfileSelect');
+  if (!picker || !select) return;
 
-  document.querySelectorAll('.profile-switcher').forEach((select) => {
-    select.replaceChildren(new Option(entries.length ? 'Switch profile' : 'No saved profiles', ''));
-    entries.forEach((entry) => {
-      const option = document.createElement('option');
-      option.value = entry.id;
-      option.textContent = `${firstName(entry.profile.fullName)} · ${entry.profile.course}`;
-      select.appendChild(option);
-    });
-    select.value = localStorage.getItem(RAVA_ACTIVE_PROFILE) || '';
-    select.disabled = entries.length < 2;
-    if (!select.dataset.bound) {
-      select.addEventListener('change', () => {
-        if (!readProfileIndex()[select.value]) return;
-        localStorage.setItem(RAVA_ACTIVE_PROFILE, select.value);
-        window.location.reload();
-      });
-      select.dataset.bound = 'true';
-    }
+  picker.hidden = entries.length === 0;
+  select.replaceChildren(new Option('Choose a saved profile', ''));
+  entries.forEach((entry) => {
+    const option = document.createElement('option');
+    option.value = entry.id;
+    option.textContent = `${firstName(entry.profile.fullName)} · ${entry.profile.course}`;
+    select.appendChild(option);
   });
+  select.add(new Option('Add new person...', '__new_person__'));
+  select.value = localStorage.getItem(RAVA_ACTIVE_PROFILE) || '';
+  select.disabled = false;
+  if (!select.dataset.bound) {
+    select.addEventListener('change', () => {
+      if (select.value === '__new_person__') {
+        window.dispatchEvent(new Event('rava:new-person'));
+        return;
+      }
+      const profile = getProfileById(select.value);
+      if (profile) window.dispatchEvent(new CustomEvent('rava:profile-selected', { detail: profile }));
+    });
+    select.dataset.bound = 'true';
+  }
 }
 
 function guardNavigation() {
@@ -167,6 +185,9 @@ function guardNavigation() {
 
 window.RavaStore = {
   getActiveProfile,
+  getProfileById,
+  setActiveProfile,
+  renderProfileHeader,
   firstName,
   saveProfile,
   updateActiveProfile,

@@ -2,7 +2,6 @@ const profileForm = document.getElementById('profileForm');
 const profileStatus = document.getElementById('profileStatus');
 const saveDraftButton = document.getElementById('saveDraftBtn');
 const continueButton = document.getElementById('continueToPage2Btn');
-const newProfileButton = document.getElementById('newProfileBtn');
 const previousUnitsBody = document.getElementById('previousUnitsBody');
 const previousUnitsSummary = document.getElementById('previousUnitsSummary');
 const previousUnitsStatus = document.getElementById('previousUnitsStatus');
@@ -15,9 +14,11 @@ const profileFields = {
   ...Object.fromEntries(profileFieldNames.map((name) => [name, document.getElementById(name)])),
   previousSemester: document.getElementById('previousSemester')
 };
-const activeProfile = window.RavaStore.getActiveProfile();
+let activeProfile = window.RavaStore.getActiveProfile();
 let previousUnits = normalizePreviousUnits(activeProfile?.profile?.previousSemester?.units);
 let createNewProfile = false;
+let savedProfile = activeProfile?.profile;
+let profileFormDirty = false;
 
 function normalizePreviousUnits(units) {
   if (!Array.isArray(units)) return [];
@@ -57,6 +58,16 @@ function formatGrade(unit) {
   return unit.gradeType === 'percent' ? `${unit.grade}%` : String(unit.grade);
 }
 
+function normalizeAcademicYear(value) {
+  const match = String(value || '').trim().match(/^(\d{4})\/(\d{2}|\d{4})$/);
+  if (!match) return '';
+  const startYear = Number(match[1]);
+  const endYear = match[2].length === 2
+    ? Math.floor(startYear / 100) * 100 + Number(match[2]) + (Number(match[2]) < startYear % 100 ? 100 : 0)
+    : Number(match[2]);
+  return endYear === startYear + 1 ? `${startYear}/${endYear}` : '';
+}
+
 function readProfileForm() {
   return {
     ...Object.fromEntries(profileFieldNames.map((name) => [name, profileFields[name].value.trim()])),
@@ -70,7 +81,10 @@ function readProfileForm() {
 
 function setProfileForm(profile) {
   profileFieldNames.forEach((name) => {
-    if (profileFields[name] && profile[name]) profileFields[name].value = profile[name];
+    if (!profileFields[name] || !profile[name]) return;
+    profileFields[name].value = name === 'previousAcademicYear'
+      ? normalizeAcademicYear(profile[name])
+      : profile[name];
   });
   if (profile.previousSemester?.semester) profileFields.previousSemester.value = profile.previousSemester.semester;
   previousUnits = normalizePreviousUnits(profile.previousSemester?.units);
@@ -82,7 +96,9 @@ function profileMatchesForm(profile) {
   const current = readProfileForm();
   const savedPrevious = { ...(profile.previousSemester || {}) };
   delete savedPrevious.studyYear;
-  return profileFieldNames.every((name) => profile[name] === current[name]) &&
+  return profileFieldNames.every((name) => name === 'previousAcademicYear'
+    ? normalizeAcademicYear(profile[name]) === normalizeAcademicYear(current[name])
+    : profile[name] === current[name]) &&
     JSON.stringify({ ...savedPrevious, units: normalizePreviousUnits(savedPrevious.units) }) === JSON.stringify(current.previousSemester);
 }
 
@@ -95,6 +111,15 @@ function updateDraftState() {
       ? 'Your profile and previous semester are saved.'
       : 'Save your profile and previous-semester details before continuing.';
   }
+}
+
+function profileFormHasUnsavedChanges() {
+  return profileFormDirty;
+}
+
+function markProfileFormDirty() {
+  profileFormDirty = true;
+  updateDraftState();
 }
 
 function renderPreviousUnits() {
@@ -142,6 +167,7 @@ function addPreviousUnit() {
   }
 
   previousUnits.push({ name, grade: grade.grade, gradeType: grade.type });
+  profileFormDirty = true;
   previousUnitNameInput.value = '';
   previousUnitGradeInput.value = '';
   previousUnitsStatus.textContent = `${name} added to previous-semester history.`;
@@ -149,12 +175,11 @@ function addPreviousUnit() {
   updateDraftState();
 }
 
-const savedProfile = activeProfile?.profile;
 if (savedProfile) setProfileForm(savedProfile);
 if (continueButton) continueButton.disabled = !activeProfile?.profileSaved || !profileMatchesForm(savedProfile);
 
-profileForm?.addEventListener('input', updateDraftState);
-profileForm?.addEventListener('change', updateDraftState);
+profileForm?.addEventListener('input', markProfileFormDirty);
+profileForm?.addEventListener('change', markProfileFormDirty);
 document.getElementById('addPreviousUnitBtn')?.addEventListener('click', addPreviousUnit);
 gradeScaleSelect?.addEventListener('change', updateGradeScale);
 updateGradeScale();
@@ -165,6 +190,7 @@ previousUnitsBody?.addEventListener('click', (event) => {
   const index = Number(button.dataset.index);
   if (!Number.isInteger(index) || index < 0 || index >= previousUnits.length) return;
   previousUnits.splice(index, 1);
+  profileFormDirty = true;
   renderPreviousUnits();
   previousUnitsStatus.textContent = 'Previous unit removed. Save your changes to keep this update.';
   updateDraftState();
@@ -180,27 +206,66 @@ profileForm?.addEventListener('submit', (event) => {
     return;
   }
 
+  activeProfile = profile;
+  savedProfile = profile.profile;
+  createNewProfile = false;
+  profileFormDirty = false;
   if (continueButton) continueButton.disabled = false;
   saveDraftButton.textContent = 'Draft Saved';
   profileStatus.textContent = `Saved for ${window.RavaStore.firstName(profile.profile.fullName)}, including previous-semester details.`;
-  createNewProfile = false;
   window.RavaStore.renderProfileSwitcher();
+  window.RavaStore.renderProfileHeader();
   window.RavaStore.renderWorkflowProgress();
   document.getElementById('profileName').textContent = window.RavaStore.firstName(profile.profile.fullName);
   const initials = window.RavaStore.firstName(profile.profile.fullName)[0].toLocaleUpperCase();
   document.getElementById('profileAvatar').textContent = initials;
 });
 
-newProfileButton?.addEventListener('click', () => {
+function beginNewProfile() {
+  if (profileFormHasUnsavedChanges() && !window.confirm('Discard unsaved profile changes and start a new person?')) {
+    window.RavaStore.renderProfileSwitcher();
+    return;
+  }
   createNewProfile = true;
   profileForm.reset();
+  profileFormDirty = false;
   previousUnits = [];
   renderPreviousUnits();
   previousUnitsStatus.textContent = '';
   if (continueButton) continueButton.disabled = true;
   if (saveDraftButton) saveDraftButton.textContent = 'Save Draft';
-  if (profileStatus) profileStatus.textContent = 'Enter details for a new person. Other saved profiles will remain on this device.';
+  if (profileStatus) profileStatus.textContent = 'Create a new profile. Existing saved profiles will not change.';
+  const selector = document.getElementById('savedProfileSelect');
+  if (selector) selector.value = '__new_person__';
   profileFields.fullName.focus();
+}
+
+window.addEventListener('rava:new-person', beginNewProfile);
+
+window.addEventListener('rava:profile-selected', (event) => {
+  const selectedProfile = event.detail;
+  if (!selectedProfile?.profileSaved) return;
+  if (profileFormHasUnsavedChanges() && !window.confirm('Discard unsaved profile changes and switch profiles?')) {
+    window.RavaStore.renderProfileSwitcher();
+    return;
+  }
+  if (!window.RavaStore.setActiveProfile(selectedProfile.id)) {
+    profileStatus.textContent = 'This browser could not switch profiles. Check its storage settings and try again.';
+    return;
+  }
+  activeProfile = selectedProfile;
+  savedProfile = selectedProfile.profile;
+  createNewProfile = false;
+  profileForm.reset();
+  profileFormDirty = false;
+  previousUnits = normalizePreviousUnits(savedProfile.previousSemester?.units);
+  setProfileForm(savedProfile);
+  if (continueButton) continueButton.disabled = !profileMatchesForm(savedProfile);
+  if (saveDraftButton) saveDraftButton.textContent = 'Save Draft';
+  profileStatus.textContent = `Switched to ${window.RavaStore.firstName(savedProfile.fullName)}. Their saved profile is unchanged.`;
+  window.RavaStore.renderProfileHeader();
+  window.RavaStore.renderProfileSwitcher();
+  window.RavaStore.renderWorkflowProgress();
 });
 
 continueButton?.addEventListener('click', () => {
@@ -244,3 +309,4 @@ document.getElementById('nextAnnouncement')?.addEventListener('click', () => {
 
 renderPreviousUnits();
 renderAnnouncement();
+if (window.location.hash === '#new-person') beginNewProfile();
