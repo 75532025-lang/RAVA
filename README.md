@@ -15,14 +15,14 @@ Then open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/p
 ## Project map
 
 - `pages/page1.html` is Home, where each person creates or selects a saved profile and records previous-semester study year, academic year, semester, and optional unit grades.
-- `pages/page2.html` is Assessment, where the current academic year and semester, current unit targets, and all eight diagnostic answers are entered.
-- `pages/page3.html` compares previous results with current targets and contains personalized findings, recommendations, weekly planning, and final report generation.
+- `pages/page2.html` is Assessment, where the current academic year, semester, expected unit count, component mark distributions, and all eight diagnostic answers are entered. Custom distributions are configured in a modal.
+- `pages/page3.html` moves the live check-in summary, accepts a target for every component, analyzes results, provides unit-specific and general recommendations, and generates the final report.
 - `css/global.css` provides the shared beige/medium-grey palette, responsive navigation, progress strip, typography, and focus styles.
 - `css/page1.css`, `css/page2.css`, and `css/page3.css` contain each page's responsive layout and controls.
 - `js/shared.js` manages profile storage, switching, shared navigation, and workflow progress.
 - `js/page1.js` manages profile creation, validation, carousel controls, and the Home continuation gate.
-- `js/page2.js` manages per-profile unit targets, diagnostic answers, summaries, and the Assessment completion gate.
-- `js/page3.js` creates per-profile findings, recommendations, weekly plans, and the final report/download gate.
+- `js/page2.js` manages per-profile current-semester setup, unit distributions, the custom-weight modal, diagnostic answers, and the exact unit-count completion gate.
+- `js/page3.js` manages component target entry, live summaries, analysis, recommendations, weekly plans, and the final report/download gate.
 
 ## Data and privacy
 
@@ -30,4 +30,4 @@ The project has no server or external dependencies. Each profile and its planner
 
 ## Assessment rules
 
-Assessment completion requires the current academic year and semester, at least one unit whose component weights total 100, targets within each component's weight, and an answer to each of the eight check-in questions. Workflow progress is 0%, 33%, 67%, then 100% only after the final report is generated. The report download stays disabled until that final step. Previous-semester unit grades are optional and appear in the comparison when their unit names match.
+Assessment completion requires a current academic year and semester, a declared unit count with exactly that many units entered, each unit's component marks totaling 100, and an answer to each of the eight check-in questions. Findings then requires a whole-number target from zero through each component's maximum. Workflow progress is 0%, 33%, 67%, then 100% only after the final report is generated. The report download stays disabled until that final step. Previous-semester unit grades are optional and appear in the analysis when their unit names match.

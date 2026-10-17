@@ -8,6 +8,8 @@ const previousUnitsSummary = document.getElementById('previousUnitsSummary');
 const previousUnitsStatus = document.getElementById('previousUnitsStatus');
 const previousUnitNameInput = document.getElementById('previousUnitName');
 const previousUnitGradeInput = document.getElementById('previousUnitGrade');
+const gradeScaleSelect = document.getElementById('gradeScaleSelect');
+const previousGradeHint = document.getElementById('previousGradeHint');
 const profileFieldNames = ['fullName', 'university', 'course', 'yearOfStudy', 'previousStudyYear', 'previousAcademicYear'];
 const profileFields = {
   ...Object.fromEntries(profileFieldNames.map((name) => [name, document.getElementById(name)])),
@@ -19,9 +21,40 @@ let createNewProfile = false;
 
 function normalizePreviousUnits(units) {
   if (!Array.isArray(units)) return [];
-  return units.filter((unit) => unit && typeof unit.name === 'string' && Number.isFinite(Number(unit.grade)) && Number(unit.grade) >= 0 && Number(unit.grade) <= 100)
-    .map((unit) => ({ name: unit.name.trim(), grade: Number(unit.grade) }))
-    .filter((unit) => unit.name);
+  return units.map((unit) => {
+    if (!unit || typeof unit.name !== 'string') return null;
+    const type = unit.gradeType || (typeof unit.grade === 'number' ? 'percent' : /^[a-d]$/i.test(String(unit.grade)) ? 'letter' : 'weight');
+    const input = type === 'percent' ? `${unit.grade}%` : String(unit.grade ?? '');
+    const parsed = parseGrade(input, type);
+    return parsed ? { name: unit.name.trim(), grade: parsed.grade, gradeType: parsed.type } : null;
+  }).filter((unit) => unit?.name);
+}
+
+function parseGrade(value, type) {
+  const raw = String(value || '').trim();
+  if (type === 'letter') return /^[a-d]$/i.test(raw) ? { grade: raw.toUpperCase(), type } : null;
+  const numericText = type === 'percent' && raw.endsWith('%') ? raw.slice(0, -1).trim() : raw;
+  if (!/^\d+(?:\.\d+)?$/.test(numericText)) return null;
+  const number = Number(numericText);
+  if (!Number.isFinite(number)) return null;
+  if (type === 'percent') return number <= 100 ? { grade: number, type } : null;
+  return type === 'weight' && number >= 0 ? { grade: numericText, type } : null;
+}
+
+function updateGradeScale() {
+  const copy = {
+    percent: ['e.g. 68', 'Enter a percentage from 0 to 100.'],
+    letter: ['e.g. A', 'Enter A, B, C, or D.'],
+    weight: ['e.g. 1.0', 'Enter a numeric weight, such as 1.0.']
+  }[gradeScaleSelect.value];
+  previousUnitGradeInput.placeholder = copy[0];
+  previousUnitGradeInput.inputMode = gradeScaleSelect.value === 'letter' ? 'text' : 'decimal';
+  previousGradeHint.textContent = copy[1];
+  previousUnitGradeInput.value = '';
+}
+
+function formatGrade(unit) {
+  return unit.gradeType === 'percent' ? `${unit.grade}%` : String(unit.grade);
 }
 
 function readProfileForm() {
@@ -48,8 +81,9 @@ function setProfileForm(profile) {
 function profileMatchesForm(profile) {
   if (!profile) return false;
   const current = readProfileForm();
+  const savedPrevious = profile.previousSemester || {};
   return profileFieldNames.every((name) => profile[name] === current[name]) &&
-    JSON.stringify(profile.previousSemester || {}) === JSON.stringify(current.previousSemester);
+    JSON.stringify({ ...savedPrevious, units: normalizePreviousUnits(savedPrevious.units) }) === JSON.stringify(current.previousSemester);
 }
 
 function updateDraftState() {
@@ -83,7 +117,7 @@ function renderPreviousUnits() {
     const actionCell = document.createElement('td');
     const removeButton = document.createElement('button');
     nameCell.textContent = unit.name;
-    gradeCell.textContent = `${unit.grade}%`;
+    gradeCell.textContent = formatGrade(unit);
     removeButton.type = 'button';
     removeButton.className = 'remove-previous-unit';
     removeButton.dataset.index = String(index);
@@ -94,19 +128,20 @@ function renderPreviousUnits() {
     previousUnitsBody.appendChild(row);
   });
 
-  const average = previousUnits.reduce((total, unit) => total + unit.grade, 0) / previousUnits.length;
-  previousUnitsSummary.textContent = `${previousUnits.length} ${previousUnits.length === 1 ? 'unit' : 'units'} · ${average.toFixed(1)}% average`;
+  const allPercentages = previousUnits.every((unit) => unit.gradeType === 'percent');
+  const average = allPercentages ? previousUnits.reduce((total, unit) => total + Number(unit.grade), 0) / previousUnits.length : null;
+  previousUnitsSummary.textContent = `${previousUnits.length} ${previousUnits.length === 1 ? 'unit' : 'units'}${average === null ? ' · grades recorded' : ` · ${average.toFixed(1)}% average`}`;
 }
 
 function addPreviousUnit() {
   const name = previousUnitNameInput.value.trim();
-  const grade = Number(previousUnitGradeInput.value);
-  if (!name || previousUnitGradeInput.value === '' || !Number.isFinite(grade) || grade < 0 || grade > 100) {
-    previousUnitsStatus.textContent = 'Enter a unit name and a grade from 0 to 100.';
+  const grade = parseGrade(previousUnitGradeInput.value, gradeScaleSelect.value);
+  if (!name || !grade) {
+    previousUnitsStatus.textContent = `Enter a valid ${gradeScaleSelect.options[gradeScaleSelect.selectedIndex].text.toLowerCase()} grade.`;
     return;
   }
 
-  previousUnits.push({ name, grade });
+  previousUnits.push({ name, grade: grade.grade, gradeType: grade.type });
   previousUnitNameInput.value = '';
   previousUnitGradeInput.value = '';
   previousUnitsStatus.textContent = `${name} added to previous-semester history.`;
@@ -121,6 +156,8 @@ if (continueButton) continueButton.disabled = !activeProfile?.profileSaved || !p
 profileForm?.addEventListener('input', updateDraftState);
 profileForm?.addEventListener('change', updateDraftState);
 document.getElementById('addPreviousUnitBtn')?.addEventListener('click', addPreviousUnit);
+gradeScaleSelect?.addEventListener('change', updateGradeScale);
+updateGradeScale();
 
 previousUnitsBody?.addEventListener('click', (event) => {
   const button = event.target.closest('.remove-previous-unit');
@@ -145,12 +182,12 @@ profileForm?.addEventListener('submit', (event) => {
 
   if (continueButton) continueButton.disabled = false;
   saveDraftButton.textContent = 'Draft Saved';
-  profileStatus.textContent = `Saved for ${profile.profile.fullName}, including previous-semester details.`;
+  profileStatus.textContent = `Saved for ${window.RavaStore.firstName(profile.profile.fullName)}, including previous-semester details.`;
   createNewProfile = false;
   window.RavaStore.renderProfileSwitcher();
   window.RavaStore.renderWorkflowProgress();
-  document.getElementById('profileName').textContent = profile.profile.fullName;
-  const initials = profile.profile.fullName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toLocaleUpperCase();
+  document.getElementById('profileName').textContent = window.RavaStore.firstName(profile.profile.fullName);
+  const initials = window.RavaStore.firstName(profile.profile.fullName)[0].toLocaleUpperCase();
   document.getElementById('profileAvatar').textContent = initials;
 });
 
@@ -179,7 +216,7 @@ continueButton?.addEventListener('click', () => {
 const announcements = [
   { text: 'Set up your profile and previous semester to begin.', link: 'Complete profile', href: '#profile-form', required: '' },
   { text: 'Choose unit targets and reflect on the habits shaping your study.', link: 'Open assessment', href: 'page2.html', required: 'profile' },
-  { text: 'Turn your answers into findings, recommendations, and a clear next step.', link: 'View resources', href: 'page3.html#recommendations', required: 'assessment' }
+  { text: 'Turn your answers into findings, recommendations, and a clear next step.', link: 'View report', href: 'page3.html#report-panel', required: 'assessment' }
 ];
 
 let announcementIndex = 0;

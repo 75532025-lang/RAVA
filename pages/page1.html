@@ -23,8 +23,7 @@
             <nav class="nav-links" aria-label="Primary navigation">
                 <a href="page1.html" aria-current="page">Home</a>
                 <a href="page2.html" data-required="profile">Assessments</a>
-                <a href="page3.html#recommendations" data-required="assessment">Resources</a>
-                <a href="page1.html#profile-form">Profile</a>
+                <a href="page3.html#report-panel" data-required="assessment">Report</a>
             </nav>
             <div class="profile-pill">
                 <div class="avatar" id="profileAvatar">--</div>
@@ -136,15 +135,23 @@
                             <input id="previousUnitName" type="text" maxlength="80" placeholder="e.g. Calculus I">
                         </div>
                         <div class="field">
-                            <label for="previousUnitGrade">Grade (%)</label>
-                            <input id="previousUnitGrade" type="number" min="0" max="100" step="1" placeholder="e.g. 68">
+                            <div class="grade-field-heading">
+                                <label for="previousUnitGrade">Grade</label>
+                                <select id="gradeScaleSelect" aria-label="Grade scale">
+                                    <option value="percent">Percentage (%)</option>
+                                    <option value="letter">Letter (A–D)</option>
+                                    <option value="weight">Weight (1.0)</option>
+                                </select>
+                            </div>
+                            <input id="previousUnitGrade" type="text" inputmode="decimal" placeholder="e.g. 68" aria-label="Grade value" aria-describedby="previousGradeHint">
+                            <small id="previousGradeHint">Enter a percentage from 0 to 100.</small>
                         </div>
-                        <button class="secondary-btn" id="addPreviousUnitBtn" type="button">Add previous unit</button>
+                        <button class="secondary-btn" id="addPreviousUnitBtn" type="button">Add  unit</button>
                     </div>
                     <div class="table-wrap previous-table-wrap">
                         <table class="previous-units-table" aria-label="Previous semester unit grades">
                             <thead><tr><th>Unit</th><th>Previous grade</th><th>Action</th></tr></thead>
-                            <tbody id="previousUnitsBody"><tr><td colspan="3">No previous units added yet.</td></tr></tbody>
+                            <tbody id="previousUnitsBody"><tr><td colspan="3">No units added yet.</td></tr></tbody>
                         </table>
                     </div>
                     <p id="previousUnitsStatus" class="previous-units-status" role="status" aria-live="polite"></p>

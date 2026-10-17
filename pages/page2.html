@@ -16,8 +16,7 @@
         <nav class="nav-links" aria-label="Primary navigation">
           <a href="page1.html">Home</a>
           <a href="page2.html" aria-current="page">Assessments</a>
-          <a href="page3.html#recommendations" data-required="assessment">Resources</a>
-          <a href="page1.html#profile-form">Profile</a>
+          <a href="page3.html#report-panel" data-required="assessment">Report</a>
         </nav>
         <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span></div>
         <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
@@ -33,7 +32,7 @@
           <div>
             <p class="eyebrow">Assessment</p>
             <h1 id="assessmentHeading">Your semester assessment</h1>
-            <p class="section-intro">Your saved profile and previous-semester record carry through. Set the current semester you are assessing below.</p>
+            <p class="section-intro">Set the current semester and describe how each unit is marked. Personal targets are entered in Findings.</p>
           </div>
         </div>
         <div class="semester-grid">
@@ -47,7 +46,9 @@
           <form id="currentSemesterForm" class="current-semester-grid">
             <div class="form-field">
               <label for="currentAcademicYear">Current academic year</label>
-              <input id="currentAcademicYear" type="text" maxlength="20" required placeholder="e.g. 2026/2027">
+              <select id="currentAcademicYear" required aria-label="Current academic year">
+                <option value="">Choose academic year</option>
+              </select>
             </div>
             <div class="form-field">
               <label for="currentSemesterSelect">Current semester</label>
@@ -58,21 +59,20 @@
                 <option value="Semester 3">Semester 3</option>
               </select>
             </div>
+            <div class="form-field">
+              <label for="maximumUnitsInput">Units this semester</label>
+              <input id="maximumUnitsInput" type="number" min="1" max="30" step="1" required placeholder="e.g. 6">
+            </div>
           </form>
-          <p id="currentSemesterStatus" class="form-status" role="status" aria-live="polite">Set the current academic year and semester before completing the assessment.</p>
-        </div>
-        <div class="previous-semester-context">
-          <h2>Previous semester from Home</h2>
-          <p id="previousSemesterContext"></p>
-          <ul id="previousUnitsPreview"></ul>
+          <p id="currentSemesterStatus" class="form-status" role="status" aria-live="polite">Set the current academic year, semester, and number of units before continuing.</p>
         </div>
       </section>
 
       <section class="unit-card" id="unit-targets">
         <div class="section-heading inline-heading">
           <div>
-            <h2>Unit Targets & Breakdown</h2>
-            <p>Set unit target goals and ensure components equal exactly 100/100.</p>
+            <h2>Units & Mark Distribution</h2>
+            <p>Add every unit and define its assessment components. Each unit's component marks must total 100.</p>
           </div>
           <div id="overallValidation" class="status-chip">Awaiting Units</div>
         </div>
@@ -85,12 +85,12 @@
             </div>
 
             <div class="form-field">
-              <label for="templateSelect">Weight Template</label>
+              <label for="templateSelect">Assessment structure</label>
               <select id="templateSelect">
                 <option value="70/30">70/30 (Exam 70 + CATs 30)</option>
                 <option value="60/40">60/40 (Exam 60 + CATs 40)</option>
                 <option value="50/50">50/50 (Exam 50 + CATs 50)</option>
-                <option value="custom">Custom Breakdown</option>
+                <option value="custom">Custom breakdown...</option>
               </select>
             </div>
 
@@ -100,6 +100,26 @@
           </form>
           <p id="unitFormStatus" class="form-status" role="status" aria-live="polite"></p>
         </div>
+
+        <dialog id="customBreakdownDialog" class="weight-dialog" aria-labelledby="customBreakdownTitle">
+          <form id="customBreakdownForm" method="dialog">
+            <div class="dialog-heading">
+              <div>
+                <p class="eyebrow">Custom unit structure</p>
+                <h2 id="customBreakdownTitle">Choose assessment components</h2>
+              </div>
+              <button type="button" class="dialog-close" id="closeCustomBreakdown" aria-label="Close custom breakdown">×</button>
+            </div>
+            <p class="dialog-description">Select every component used for this unit and enter its maximum marks. The selected marks must total 100.</p>
+            <div class="custom-component-list" id="customComponentList"></div>
+            <p class="custom-total" id="customBreakdownTotal" aria-live="polite">Selected marks: 100 / 100</p>
+            <p class="custom-error" id="customBreakdownError" role="alert"></p>
+            <div class="dialog-actions">
+              <button type="button" class="secondary-btn" id="cancelCustomBreakdown">Cancel</button>
+              <button type="submit" class="primary-btn" id="applyCustomBreakdown">Use this breakdown</button>
+            </div>
+          </form>
+        </dialog>
 
         <div class="recorded-wrap">
           <h3>Recorded Units</h3>
@@ -187,61 +207,9 @@
         </div>
       </section>
 
-      <section class="summary-card" id="personal-summary">
-        <div class="section-heading small-gap">
-          <h2>Your Live Personal Summary</h2>
-        </div>
-
-        <div class="summary-panel-grid">
-          <div class="summary-box">
-            <h3>Your Efforts</h3>
-            <div id="summaryEfforts">Complete the quiz above to see your efforts.</div>
-          </div>
-          <div class="summary-box">
-            <h3>Your Struggles</h3>
-            <div id="summaryStruggles">Complete the quiz above to see your challenges.</div>
-          </div>
-          <div class="summary-box">
-            <h3>Your Strengths</h3>
-            <div id="summaryStrengths">Complete the quiz above to see your strengths.</div>
-          </div>
-          <div class="summary-box">
-            <h3>Your Targets</h3>
-            <div id="summaryTargets">Add units in Part B to see your targets.</div>
-          </div>
-        </div>
-
-        <div class="assessment-footer">
-          <p id="assessmentStatus" role="status" aria-live="polite">Add at least one valid unit and answer every check-in question to continue.</p>
-          <button id="continueToFindingsBtn" class="primary-btn" type="button" disabled>Next Section &rarr;</button>
-        </div>
-      </section>
-
-      <section class="glance-card" id="semester-overview">
-        <div class="section-heading small-gap">
-          <h2>Your Semester At A Glance</h2>
-        </div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Target (Total 100)</th>
-                <th>Past Result</th>
-                <th>Pattern / Notes</th>
-              </tr>
-            </thead>
-            <tbody id="semesterOverviewBody">
-              <tr><td colspan="4">Add units above to build your semester overview.</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="pattern-chip">
-          <span class="pattern-icon">◌</span>
-          <span id="overallPattern">Your study patterns will appear here after the check-in.</span>
-        </div>
+      <section class="assessment-footer assessment-completion">
+        <p id="assessmentStatus" role="status" aria-live="polite">Set the number of units, add every unit and answer all check-in questions to continue.</p>
+        <button id="continueToFindingsBtn" class="primary-btn" type="button" disabled>Next Section &rarr;</button>
       </section>
 
       <footer class="assessment-navigation">

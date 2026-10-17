@@ -21,6 +21,10 @@ function getActiveProfile() {
   return id ? readProfileIndex()[id] || null : null;
 }
 
+function firstName(fullName) {
+  return String(fullName || '').trim().split(/\s+/)[0] || 'Guest';
+}
+
 function saveProfile(profile, createNew = false) {
   const profiles = readProfileIndex();
   const current = getActiveProfile();
@@ -101,12 +105,12 @@ function renderWorkflowProgress() {
 
 function renderProfileHeader() {
   const profile = getActiveProfile()?.profile;
-  const name = profile?.fullName || 'Guest';
+  const name = firstName(profile?.fullName);
   const nameElement = document.getElementById('profileName');
   const avatarElement = document.getElementById('profileAvatar');
   if (nameElement) nameElement.textContent = name;
   if (avatarElement) {
-    const initials = name === 'Guest' ? '--' : name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toLocaleUpperCase();
+    const initials = name === 'Guest' ? '--' : name[0].toLocaleUpperCase();
     avatarElement.textContent = initials;
   }
 }
@@ -130,7 +134,7 @@ function renderProfileSwitcher() {
   entries.forEach((entry) => {
     const option = document.createElement('option');
     option.value = entry.id;
-    option.textContent = `${entry.profile.fullName} · ${entry.profile.course} · ${entry.profile.previousSemester?.semester || 'previous term not set'}`;
+    option.textContent = `${firstName(entry.profile.fullName)} · ${entry.profile.course} · ${entry.profile.previousSemester?.semester || 'previous term not set'}`;
     select.appendChild(option);
   });
   select.value = localStorage.getItem(RAVA_ACTIVE_PROFILE) || '';
@@ -162,6 +166,7 @@ function guardNavigation() {
 
 window.RavaStore = {
   getActiveProfile,
+  firstName,
   saveProfile,
   updateActiveProfile,
   listProfiles: () => Object.values(readProfileIndex()),
