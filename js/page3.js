@@ -223,7 +223,7 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     studyMethods.forEach((guide) => {
       if (!selected.some((item) => item.title === guide.title)) selected.push({ ...guide });
     });
-    return selected.slice(0, 5);
+    return selected.slice(0, 2);
   }
 
   function appendRecommendationText(container, label, text, className) {
@@ -241,7 +241,7 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
       const heading = makeElement('div', 'unit-recommendation-heading');
       heading.append(
         makeElement('span', 'recommendation-number', String(index + 1).padStart(2, '0')),
-        makeElement('h3', '', `${unit.name}: five ways forward`)
+        makeElement('h3', '', `${unit.name}: two ways forward`)
       );
       group.append(heading, makeElement('p', 'unit-recommendation-intro', 'Pick one method for your next study block, then mix in another when your focus needs a change of pace.'));
       const list = makeElement('ol', 'unit-recommendations');
@@ -306,9 +306,9 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     targetStatus.textContent = `${pending} component ${pending === 1 ? 'target remains' : 'targets remain'}. Enter whole numbers from 0 to each component maximum.`;
   }
 
-  function buildReport() {
+  function buildReport(showReport = true) {
     reportOutput.replaceChildren();
-    reportOutput.hidden = false;
+    reportOutput.hidden = !showReport;
     const reportHeader = makeElement('header', 'report-heading');
     reportHeader.append(
       makeElement('p', 'report-kicker', 'RAVA · YOUR SEMESTER FIELD GUIDE'),
@@ -368,7 +368,7 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     });
     targetsSection.appendChild(targets);
 
-    const recommendationsSection = appendReportSection('Five ways forward for each unit', 'report-recommendations');
+    const recommendationsSection = appendReportSection('Two focused ideas for each unit', 'report-recommendations');
     document.querySelectorAll('.unit-recommendation-group').forEach((group) => {
       const unitRecommendations = makeElement('section', 'report-recommendation-unit');
       unitRecommendations.appendChild(makeElement('h5', '', group.querySelector('h3')?.textContent || 'Unit recommendations'));
@@ -386,6 +386,16 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
       recommendationsSection.appendChild(unitRecommendations);
     });
 
+    const componentCount = units.reduce((count, unit) => count + unit.components.length, 0);
+    const funFacts = appendReportSection('🎉 Fun facts & small wins', 'report-fun-facts');
+    const factsList = document.createElement('ul');
+    [
+      `🎯 Your plan breaks ${units.length} ${units.length === 1 ? 'unit' : 'units'} into ${componentCount} clear component ${componentCount === 1 ? 'target' : 'targets'}. Pick one small next step and let the rest wait their turn.`,
+      '🧠 A quick question from memory is called active recall. It helps you check what you can bring to mind before looking back at your notes.',
+      '⏱️ The sample week adds up to 180 minutes across seven short sessions, about three hours total. You can move those sessions to fit your real week.'
+    ].forEach((fact) => factsList.appendChild(makeElement('li', '', fact)));
+    funFacts.appendChild(factsList);
+
     const savedWeeklyPlan = window.RavaStore.getActiveProfile()?.weeklyPlan;
     if (savedWeeklyPlan?.trim()) {
       const planSection = appendReportSection('Your weekly rhythm', 'report-weekly-plan');
@@ -398,6 +408,10 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     const latest = window.RavaStore.getActiveProfile();
     const reportReady = Boolean(latest?.reportGenerated) && allTargetsAreValid();
     generateButton.disabled = !allTargetsAreValid();
+    generateButton.textContent = reportReady
+      ? reportOutput.hidden ? 'Show report' : 'Hide report'
+      : 'Generate report';
+    generateButton.setAttribute('aria-expanded', String(reportReady && !reportOutput.hidden));
     downloadButton.disabled = !reportReady || window.RavaStore.calculateWorkflowProgress(latest) !== 100;
     reportStatus.textContent = !allTargetsAreValid()
       ? 'Enter a valid target for every component before generating the report.'
@@ -493,6 +507,12 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
 
   generateButton.addEventListener('click', () => {
     if (!allTargetsAreValid()) return;
+    const latest = window.RavaStore.getActiveProfile();
+    if (latest?.reportGenerated && reportOutput.childElementCount) {
+      reportOutput.hidden = !reportOutput.hidden;
+      syncReportState();
+      return;
+    }
     buildReport();
     window.RavaStore.updateActiveProfile({ units, reportGenerated: true });
     window.RavaStore.renderWorkflowProgress();
@@ -529,7 +549,7 @@ if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
     renderFindings();
     renderRecommendations();
     updateTargetStatus();
-    if (activeProfile.reportGenerated && allTargetsAreValid()) buildReport();
+    if (activeProfile.reportGenerated && allTargetsAreValid()) buildReport(false);
     syncReportState();
     if (document.getElementById('ownPlanNotes')) document.getElementById('ownPlanNotes').value = activeProfile.weeklyPlan || '';
     window.RavaStore.renderWorkflowProgress();

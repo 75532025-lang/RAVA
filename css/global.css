@@ -632,6 +632,26 @@ body .page-footer a {
   color: #F5EBDD;
 }
 
+body .profile-pill {
+  max-width: none;
+}
+
+body .profile-switcher {
+  width: 128px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 7px;
+  border: 1px solid #65574D;
+  border-radius: 4px;
+  background: #3A342F;
+  color: #F5EBDD;
+  font-size: 0.68rem;
+}
+
+body .profile-switcher:disabled {
+  opacity: 0.72;
+}
+
 @media (max-width: 760px) {
   .topbar {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -662,6 +682,19 @@ body .page-footer a {
   .nav-links a {
     padding: 8px 2px;
     font-size: 0.63rem;
+  }
+
+  body .profile-pill {
+    max-width: none;
+    gap: 5px;
+    font-size: 0.7rem;
+  }
+
+  body .profile-switcher {
+    width: 92px;
+    min-height: 29px;
+    padding: 0 3px;
+    font-size: 0.6rem;
   }
 }
 

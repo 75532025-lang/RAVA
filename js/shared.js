@@ -98,7 +98,7 @@ function renderWorkflowProgress() {
   if (percent) percent.textContent = `${progress}%`;
   if (message) {
     message.textContent = progress === 100
-      ? 'Complete · Your report is ready to download'
+      ? 'Complete · Your report is ready to save as a PDF'
       : `Step ${Math.floor(progress / 33) + 1} of 3 · ${progress === 0 ? 'Save your profile and previous semester' : progress === 33 ? 'Complete the assessment' : 'Generate your findings report'}`;
   }
 }
@@ -124,28 +124,29 @@ function renderNavigationNotice(message) {
 
 function renderProfileSwitcher() {
   const picker = document.getElementById('profilePicker');
-  const select = document.getElementById('savedProfileSelect');
-  if (!picker || !select) return;
-
   const profiles = readProfileIndex();
   const entries = Object.values(profiles).filter((entry) => entry?.profile?.fullName);
-  picker.hidden = entries.length === 0;
-  select.replaceChildren();
-  entries.forEach((entry) => {
-    const option = document.createElement('option');
-    option.value = entry.id;
-    option.textContent = `${firstName(entry.profile.fullName)} · ${entry.profile.course} · ${entry.profile.previousSemester?.semester || 'previous term not set'}`;
-    select.appendChild(option);
-  });
-  select.value = localStorage.getItem(RAVA_ACTIVE_PROFILE) || '';
-  if (!select.dataset.bound) {
-    select.addEventListener('change', () => {
-      if (!readProfileIndex()[select.value]) return;
-      localStorage.setItem(RAVA_ACTIVE_PROFILE, select.value);
-      window.location.reload();
+  if (picker) picker.hidden = entries.length === 0;
+
+  document.querySelectorAll('.profile-switcher').forEach((select) => {
+    select.replaceChildren(new Option(entries.length ? 'Switch profile' : 'No saved profiles', ''));
+    entries.forEach((entry) => {
+      const option = document.createElement('option');
+      option.value = entry.id;
+      option.textContent = `${firstName(entry.profile.fullName)} · ${entry.profile.course}`;
+      select.appendChild(option);
     });
-    select.dataset.bound = 'true';
-  }
+    select.value = localStorage.getItem(RAVA_ACTIVE_PROFILE) || '';
+    select.disabled = entries.length < 2;
+    if (!select.dataset.bound) {
+      select.addEventListener('change', () => {
+        if (!readProfileIndex()[select.value]) return;
+        localStorage.setItem(RAVA_ACTIVE_PROFILE, select.value);
+        window.location.reload();
+      });
+      select.dataset.bound = 'true';
+    }
+  });
 }
 
 function guardNavigation() {

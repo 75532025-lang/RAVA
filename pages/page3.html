@@ -18,7 +18,7 @@
           <a href="page2.html" data-required="profile">Assessments</a>
           <a href="page3.html#report-panel" aria-current="page" data-required="assessment">Report</a>
         </nav>
-        <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span></div>
+        <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span><select class="profile-switcher" aria-label="Switch profile" title="Switch profile"></select></div>
         <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
       </header>
 
@@ -113,7 +113,7 @@
         </div>
         <p id="reportStatus" role="status" aria-live="polite">Complete all assessment questions and add a valid unit to generate your report.</p>
         <div class="report-actions">
-          <button type="button" class="primary-btn" id="generateReportBtn" disabled>Generate final report</button>
+          <button type="button" class="primary-btn" id="generateReportBtn" aria-controls="reportOutput" aria-expanded="false" disabled>Generate report</button>
           <button type="button" class="secondary-btn" id="downloadReportBtn" disabled>Download PDF</button>
         </div>
         <article id="reportOutput" class="report-output" aria-live="polite" hidden></article>
