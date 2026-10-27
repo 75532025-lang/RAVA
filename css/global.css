@@ -578,21 +578,21 @@ body .context-field {
 
 body .primary-btn,
 body .form-action button {
-  border-color: var(--button);
-  background: var(--button);
+  border-color: #73503A;
+  background: #73503A;
   color: #FFFFFF;
 }
 
 body .primary-btn:hover:not(:disabled),
 body .form-action button:hover:not(:disabled) {
-  border-color: var(--button-hover);
-  background: var(--button-hover);
+  border-color: #5D3F2E;
+  background: #5D3F2E;
 }
 
 body .secondary-btn,
 body .back-link {
-  border-color: var(--border-strong);
-  color: var(--border-strong);
+  border-color: #493328;
+  color: #493328;
 }
 
 body .secondary-btn:hover:not(:disabled) {
@@ -675,8 +675,8 @@ body .page-footer a {
 }
 
 body .quiz-option.is-selected {
-  border-color: var(--button);
-  background: var(--button);
+  border-color: #73503A;
+  background: #73503A;
   color: #FFFFFF;
 }
 
@@ -684,9 +684,11 @@ body .previous-units-summary,
 body .status-chip,
 body .result-chip {
   border-color: var(--border);
-  background: var(--page-deep);
-  color: var(--text);
+  background: #E8DCCF;
+  color: #38261D;
 }
+
+
 
 body .target-component-row,
 body .component-row,
@@ -739,4 +741,14 @@ body .page-footer a {
     height: 32px;
     flex-basis: 32px;
   }
+}
+
+body button:focus-visible,
+body a:focus-visible,
+body input:focus-visible,
+body select:focus-visible,
+body textarea:focus-visible {
+  outline: 3px solid #1A1A1A;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #FFFFFF;
 }

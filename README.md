@@ -31,3 +31,13 @@ The project has no server or external dependencies. Each profile and its planner
 ## Assessment rules
 
 Assessment completion requires a current academic year and semester, a declared unit count with exactly that many units entered, each unit's component marks totaling 100, and an answer to each of the eight check-in questions. Findings then requires a whole-number target from zero through each component's maximum. Workflow progress is 0%, 33%, 67%, then 100% only after the final report is generated. The report download stays disabled until that final step. Previous-semester unit grades are optional and appear in the analysis when their unit names match.
+
+## Testing and deployment notes
+
+There is no package manager manifest, automated test suite, linter, type checker, or production build step. Test changes by opening each page in a browser and exercising the profile, assessment, target, report, and print-preview workflows. The browser print dialog is required to save a PDF. If Python is installed, the local HTTP server command above can be used instead of opening the files directly.
+
+The project is static-only. It does not record actual assessment marks or calculate grades, grade points, GPA, or CGPA, and it has no API, server-side authentication, database, or cross-device synchronization. Do not treat browser-local profiles as protected student accounts or store sensitive records on a shared device. No production host, domain, HTTPS setup, deployment configuration, or capacity test is included; verify those with the selected hosting provider before making production claims.
+
+The pre-deployment audit records the checks that were run and the limitations that remain in [`audit/`](./audit/).
+
+Page-specific titles and descriptions are included. Canonical URLs, `robots.txt`, a sitemap, and absolute social-preview metadata are intentionally pending a production-domain and indexing decision; crawler directives are not a privacy control.
