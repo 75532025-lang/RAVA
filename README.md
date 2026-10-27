@@ -4,17 +4,17 @@ A lightweight, three-page academic planner built with plain HTML, CSS, and JavaS
 
 ## Run locally
 
-Open `pages/page1.html` directly in a browser. For a consistent HTTP origin, start a local server from the project root if Python is installed:
+Open `pages/index.html` directly in a browser. For a consistent HTTP origin, start a local server from the project root if Python is installed:
 
 ```powershell
 python -m http.server 8000
 ```
 
-Then open [http://localhost:8000/pages/page1.html](http://localhost:8000/pages/page1.html). Home saves a profile before unlocking Assessment; a completed assessment unlocks Findings; generating the final report unlocks its download. The navigation and progress strip are shared across all three pages. Browser-local profiles work without a build step or server.
+Then open [http://localhost:8000/pages/index.html](http://localhost:8000/pages/index.html). Home saves a profile before unlocking Assessment; a completed assessment unlocks Findings; generating the final report unlocks its download. The navigation and progress strip are shared across all three pages. Browser-local profiles work without a build step or server.
 
 ## Project map
 
-- `pages/page1.html` is Home, where each person creates or selects a saved profile and records the previous academic year, semester, and optional unit grades. Academic-year options currently run through 2026/2027.
+- `pages/index.html` is Home, where each person creates or selects a saved profile and records the previous academic year, semester, and optional unit grades. Academic-year options currently run through 2026/2027.
 - `pages/page2.html` is Assessment, where the current academic year, semester, expected unit count, component mark distributions, and all eight diagnostic answers are entered. Custom distributions are configured in a modal.
 - `pages/page3.html` moves the live check-in summary, accepts a target for every component, analyzes results, provides two detailed recommendations per unit, supports reusable weekly plans, and prints the final report to PDF.
 - `css/global.css` provides the shared beige/medium-grey palette, responsive navigation, progress strip, typography, and focus styles.
@@ -36,7 +36,7 @@ Assessment completion requires a current academic year and semester, a declared 
 
 There is no package manager manifest, automated test suite, linter, type checker, or production build step. Test changes by opening each page in a browser and exercising the profile, assessment, target, report, and print-preview workflows. The browser print dialog is required to save a PDF. If Python is installed, the local HTTP server command above can be used instead of opening the files directly.
 
-The project is static-only. It does not record actual assessment marks or calculate grades, grade points, GPA, or CGPA, and it has no API, server-side authentication, database, or cross-device synchronization. Do not treat browser-local profiles as protected student accounts or store sensitive records on a shared device. No production host, domain, HTTPS setup, deployment configuration, or capacity test is included; verify those with the selected hosting provider before making production claims.
+The project is static-only. It does not record actual assessment marks or calculate grades, grade points, GPA, or CGPA, and it has no API, server-side authentication, database, or cross-device synchronization. Do not treat browser-local profiles as protected student accounts or store sensitive records on a shared device. `vercel.json` rewrites the root URL to the existing Home document; Vercel hosting, domain, HTTPS setup, and capacity have not been verified.
 
 The pre-deployment audit records the checks that were run and the limitations that remain in [`audit/`](./audit/).
 

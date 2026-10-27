@@ -1,6 +1,6 @@
 const activeProfile = window.RavaStore.getActiveProfile();
 if (!activeProfile?.profileSaved || !activeProfile.assessmentComplete) {
-  window.location.replace(activeProfile?.profileSaved ? 'page2.html' : 'page1.html#profile-form');
+  window.location.replace(activeProfile?.profileSaved ? '/pages/page2.html' : '/#profile-form');
 } else {
   const profile = activeProfile.profile;
   const currentSemester = activeProfile.currentSemester || {};

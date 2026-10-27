@@ -16,7 +16,7 @@
 | Internal links | PASS | Local page and asset links in the three HTML pages resolve to files present in the project. |
 | Search rendering | PARTIAL | Content is static HTML with local deferred scripts. Browser rendering works in Chromium, but no deployed crawler or search-engine rendering test was available. |
 | URL/domain review | PASS (repository scope) | No production domain, API base URL, authentication callback, or email URL is configured. Local page links and asset paths are relative. |
-| Root entry route | BLOCKED | No root `index.html` exists; README directs users to `/pages/page1.html`. Verify the selected host's root response and configure a suitable entry route if needed. |
+| Root entry route | PASS (configuration) | `vercel.json` rewrites `/` to the existing `pages/index.html`; Vercel's live response remains unverified. |
 
 ### Blocked or intentionally deferred
 

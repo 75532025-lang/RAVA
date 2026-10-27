@@ -205,7 +205,7 @@ guardNavigation();
 const currentProfile = getActiveProfile();
 const currentPage = document.body.dataset.page;
 if (currentPage === 'assessment' && !currentProfile?.profileSaved) {
-  window.location.replace('page1.html#profile-form');
+  window.location.replace('/#profile-form');
 } else if (currentPage === 'findings' && !currentProfile?.assessmentComplete) {
-  window.location.replace(currentProfile?.profileSaved ? 'page2.html' : 'page1.html#profile-form');
+  window.location.replace(currentProfile?.profileSaved ? '/pages/page2.html' : '/#profile-form');
 }

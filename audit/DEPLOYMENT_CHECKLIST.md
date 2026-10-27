@@ -8,8 +8,8 @@ Statuses reflect repository and environment evidence available during this audit
 | Package install/build command | NOT APPLICABLE | No framework, package manifest, or build step. |
 | Critical synthetic browser workflow | PASS | Passed in the integrated Chromium browser; see `TEST_PLAN.md`. |
 | Browser-local persistence | PASS (limited) | `localStorage` is used; it is not account security or cross-device storage. |
-| Production host and output configuration | BLOCKED | No hosting provider or deployment configuration is in the repository. |
-| Root domain entry route | BLOCKED | No root `index.html`; README uses `/pages/page1.html`. Configure the selected host or provide a root entry page. |
+| Production host and output configuration | PARTIAL | The project is static with no build step; `vercel.json` rewrites `/` to `pages/index.html`. Live Vercel deployment settings have not been verified. |
+| Root domain entry route | PASS (configuration) | The Vercel rewrite serves the existing Home document at `/`; direct page routes remain under `/pages/`. Live deployment remains unverified. |
 | Production domain and canonical URL | BLOCKED | No domain was supplied; none was invented. |
 | HTTPS certificate and HTTP-to-HTTPS redirects | BLOCKED | Must be checked at the selected host. |
 | Security headers and private-data cache policy | BLOCKED | Must be configured/verified at the host. Do not rely on `robots.txt` for access control. |

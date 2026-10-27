@@ -14,7 +14,7 @@ The supplied audit prompt's API, server-side authorization, database, GPA engine
 
 ## Architecture and important files
 
-- `pages/page1.html`, `pages/page2.html`, and `pages/page3.html` are the Home, Assessment, and Findings views.
+- `pages/index.html`, `pages/page2.html`, and `pages/page3.html` are the Home, Assessment, and Findings views.
 - `js/shared.js` stores profile records and workflow state in browser `localStorage`.
 - `js/page1.js` manages profiles and optional previous-semester grade history.
 - `js/page2.js` manages unit component distributions and the diagnostic check-in.
@@ -58,7 +58,7 @@ There are no package/configuration files for a framework, API, deployment host, 
 | RAVA-04 | P2 | Original primary/selected controls used low-contrast colors and keyboard-focused inputs lacked a visible outline in theme overrides. | Fixed: darkened primary/selected controls and secondary-control text; added a high-contrast keyboard focus ring. Representative contrast and keyboard focus retested in Chromium. |
 | RAVA-05 | P3 | Diagnostic check-in options were visually grouped but their question groups were not explicitly named for assistive technology. | Fixed with labelled group semantics on all eight questions; verified in Chromium accessibility snapshot. |
 | RAVA-06 | P3 | Automated accessibility, exhaustive contrast, and cross-browser checks were not available. | Remains unverified; see `SEO_ACCESSIBILITY_REPORT.md` and browser matrix. |
-| RAVA-07 | P2 | There is no root `index.html`; the documented entry point is `/pages/page1.html`. A static host may return a 404 at `/` unless it is configured to serve that path. | Pending host selection; set the host's entry/rewrite or add a root landing document after confirming desired URL behavior. |
+| RAVA-07 | P2 | There is no root `index.html`; Vercel's default static root would not serve the Home document at `/`. | Fixed in repository: `vercel.json` rewrites `/` to `/pages/index.html`, and Home navigation/guard redirects use the real routes. Live deployment response remains unverified. |
 
 No P0/P1 code defect was confirmed in the inspected static application. The findings above are limitations and unverified deployment concerns, not claims that a production service was tested.
 

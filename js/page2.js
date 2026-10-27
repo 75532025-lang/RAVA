@@ -1,6 +1,6 @@
 const activeProfile = window.RavaStore.getActiveProfile();
 if (!activeProfile?.profileSaved) {
-  window.location.replace('page1.html#profile-form');
+  window.location.replace('/#profile-form');
 } else {
   const profile = activeProfile.profile;
   let units = Array.isArray(activeProfile.units) ? activeProfile.units : [];
