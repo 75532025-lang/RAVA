@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAVA Academic Planner | Page 1: Semester Assessment</title>
+    <meta name="description" content="Set up your semester units, define assessment component weights, and reflect on study habits with the RAVA academic planner.">
+    <link rel="icon" href="../assets/rava-logo.jpg" type="image/jpeg" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/page1.css" />
+    <script src="../js/shared.js" defer></script>
+    <script src="../js/page1.js" defer></script>
+  </head>
+  <body data-page="assessment">
+    <main class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap"><img class="brand-mark" src="../assets/rava-logo.jpg" alt=""><span class="brand-logo">RAVA</span></div>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/pages/page1.html" aria-current="page">Page 1: Assessment</a>
+          <a href="/pages/page2.html#report-panel" data-required="assessment">Page 2: Findings</a>
+        </nav>
+        <div class="profile-pill"><div class="avatar" id="profileAvatar">--</div><span id="profileName">Guest</span></div>
+        <p class="navigation-notice" id="navigationNotice" role="status" aria-live="polite" hidden></p>
+      </header>
+
+      <section class="workflow-progress" aria-label="Planner progress">
+        <div class="progress-track" id="workflowProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="0 percent complete"><span class="progress-fill" id="workflowProgressFill"></span></div>
+        <div class="progress-caption"><span id="workflowProgressText" role="status" aria-live="polite">Step 1 of 3 · Save your profile</span><span id="workflowProgressPercent">0%</span></div>
+      </section>
+
+      <section class="semester-card profile-context" id="semester-setup">
+        <div class="section-heading small-gap">
+          <div>
+            <p class="eyebrow">Assessment</p>
+            <h1 id="assessmentHeading">Your semester assessment</h1>
+            <p class="section-intro">Set the current semester and describe how each unit is marked. Personal targets are entered in Findings.</p>
+          </div>
+        </div>
+        <div class="semester-grid">
+          <div class="context-field"><span>Name</span><strong id="assessmentName"></strong></div>
+          <div class="context-field"><span>University</span><strong id="assessmentUniversity"></strong></div>
+          <div class="context-field"><span>Course</span><strong id="assessmentCourse"></strong></div>
+          <div class="context-field"><span>Year</span><strong id="assessmentYear"></strong></div>
+        </div>
+        <div class="current-semester-setup">
+          <h2>Current semester setup</h2>
+          <form id="currentSemesterForm" class="current-semester-grid">
+            <div class="form-field">
+              <label for="currentAcademicYear">Current academic year</label>
+              <select id="currentAcademicYear" required aria-label="Current academic year">
+                <option value="">Choose academic year</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="currentSemesterSelect">Current semester</label>
+              <select id="currentSemesterSelect" required>
+                <option value="">Choose semester</option>
+                <option value="Semester 1">Semester 1</option>
+                <option value="Semester 2">Semester 2</option>
+                <option value="Semester 3">Semester 3</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="maximumUnitsInput">Units this semester</label>
+              <input id="maximumUnitsInput" type="number" min="1" max="30" step="1" required placeholder="e.g. 6">
+            </div>
+          </form>
+          <p id="currentSemesterStatus" class="form-status" role="status" aria-live="polite">Set the current academic year, semester, and number of units before continuing.</p>
+        </div>
+      </section>
+
+      <section class="unit-card" id="unit-targets">
+        <div class="section-heading inline-heading">
+          <div>
+            <h2>Units & Mark Distribution</h2>
+            <p>Add every unit and define its assessment components. Each unit's component marks must total 100.</p>
+          </div>
+          <div id="overallValidation" class="status-chip">Awaiting Units</div>
+        </div>
+
+        <div class="unit-builder">
+          <form id="unitBuilderForm" class="unit-builder-grid">
+            <div class="form-field">
+              <label for="unitNameInput">Unit Name</label>
+              <input type="text" id="unitNameInput" placeholder="e.g., Calculus II" />
+            </div>
+
+            <div class="form-field">
+              <label for="templateSelect">Assessment structure</label>
+              <select id="templateSelect">
+                <option value="70/30">70/30 (Exam 70 + CATs 30)</option>
+                <option value="60/40">60/40 (Exam 60 + CATs 40)</option>
+                <option value="50/50">50/50 (Exam 50 + CATs 50)</option>
+                <option value="custom">Custom breakdown...</option>
+              </select>
+            </div>
+
+            <div class="form-action">
+              <button id="addUnitBtn" type="submit">+ Add Unit</button>
+            </div>
+          </form>
+          <p id="unitFormStatus" class="form-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <dialog id="customBreakdownDialog" class="weight-dialog" aria-labelledby="customBreakdownTitle">
+          <form id="customBreakdownForm" method="dialog">
+            <div class="dialog-heading">
+              <div>
+                <p class="eyebrow">Custom unit structure</p>
+                <h2 id="customBreakdownTitle">Choose assessment components</h2>
+              </div>
+              <button type="button" class="dialog-close" id="closeCustomBreakdown" aria-label="Close custom breakdown">×</button>
+            </div>
+            <p class="dialog-description">Select every component used for this unit and enter its maximum marks. The selected marks must total 100.</p>
+            <div class="custom-component-list" id="customComponentList"></div>
+            <p class="custom-total" id="customBreakdownTotal" aria-live="polite">Selected marks: 100 / 100</p>
+            <p class="custom-error" id="customBreakdownError" role="alert"></p>
+            <div class="dialog-actions">
+              <button type="button" class="secondary-btn" id="cancelCustomBreakdown">Cancel</button>
+              <button type="submit" class="primary-btn" id="applyCustomBreakdown">Use this breakdown</button>
+            </div>
+          </form>
+        </dialog>
+
+        <div class="recorded-wrap">
+          <h3>Recorded Units</h3>
+          <div id="recordedUnitsContainer" class="recorded-units">
+            <p class="empty-state">No units added yet. Enter a unit above to build your targets.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="quiz-section" id="diagnostic-check-in">
+        <div class="section-heading small-gap">
+          <h2>Diagnostic Check-In</h2>
+        </div>
+
+        <div class="quiz-grid">
+          <div class="quiz-card" role="group" aria-labelledby="question1Heading">
+            <h3 id="question1Heading">1. How do you study?</h3>
+            <button type="button" class="quiz-option quiz-opt-q1" data-question="q1">Group study / With friends</button>
+            <button type="button" class="quiz-option quiz-opt-q1" data-question="q1">Past papers</button>
+            <button type="button" class="quiz-option quiz-opt-q1" data-question="q1">Notes &amp; Textbooks</button>
+            <button type="button" class="quiz-option quiz-opt-q1" data-question="q1">Video tutorials</button>
+            <button type="button" class="quiz-option quiz-opt-q1" data-question="q1">Alone quietly</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question2Heading">
+            <h3 id="question2Heading">2. When do you study best?</h3>
+            <button type="button" class="quiz-option quiz-opt-q2" data-question="q2">Morning</button>
+            <button type="button" class="quiz-option quiz-opt-q2" data-question="q2">Afternoon</button>
+            <button type="button" class="quiz-option quiz-opt-q2" data-question="q2">Night / Late night</button>
+            <button type="button" class="quiz-option quiz-opt-q2" data-question="q2">Weekends only</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question3Heading">
+            <h3 id="question3Heading">3. How do you feel before exams?</h3>
+            <button type="button" class="quiz-option quiz-opt-q3" data-question="q3">😌 Calm</button>
+            <button type="button" class="quiz-option quiz-opt-q3" data-question="q3">🙂 Okay</button>
+            <button type="button" class="quiz-option quiz-opt-q3" data-question="q3">😬 Nervous</button>
+            <button type="button" class="quiz-option quiz-opt-q3" data-question="q3">😰 Very Anxious</button>
+            <button type="button" class="quiz-option quiz-opt-q3" data-question="q3">😱 Panic</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question4Heading">
+            <h3 id="question4Heading">4. What challenges you most?</h3>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Timed exams</button>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Understanding concepts</button>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Cramming / Procrastination</button>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Sleep / Stress</button>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Skipping CATs</button>
+            <button type="button" class="quiz-option quiz-opt-q4" data-question="q4">Too many units</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question5Heading">
+            <h3 id="question5Heading">5. What did you do right last semester?</h3>
+            <button type="button" class="quiz-option quiz-opt-q5" data-question="q5">Attended classes regularly</button>
+            <button type="button" class="quiz-option quiz-opt-q5" data-question="q5">Did past papers</button>
+            <button type="button" class="quiz-option quiz-opt-q5" data-question="q5">Started early</button>
+            <button type="button" class="quiz-option quiz-opt-q5" data-question="q5">Asked for help</button>
+            <button type="button" class="quiz-option quiz-opt-q5" data-question="q5">Revised notes</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question6Heading">
+            <h3 id="question6Heading">6. What went wrong last semester?</h3>
+            <button type="button" class="quiz-option quiz-opt-q6" data-question="q6">Crammed last minute</button>
+            <button type="button" class="quiz-option quiz-opt-q6" data-question="q6">Skipped some CATs</button>
+            <button type="button" class="quiz-option quiz-opt-q6" data-question="q6">Didn't understand topics</button>
+            <button type="button" class="quiz-option quiz-opt-q6" data-question="q6">Stressed / Slept badly</button>
+            <button type="button" class="quiz-option quiz-opt-q6" data-question="q6">Didn't plan ahead</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question7Heading">
+            <h3 id="question7Heading">7. How many hours do you sleep daily?</h3>
+            <button type="button" class="quiz-option quiz-opt-q7" data-question="q7">4-5 hours</button>
+            <button type="button" class="quiz-option quiz-opt-q7" data-question="q7">6 hours</button>
+            <button type="button" class="quiz-option quiz-opt-q7" data-question="q7">7 hours</button>
+            <button type="button" class="quiz-option quiz-opt-q7" data-question="q7">8+ hours</button>
+          </div>
+
+          <div class="quiz-card" role="group" aria-labelledby="question8Heading">
+            <h3 id="question8Heading">8. How many hours do you study per day?</h3>
+            <button type="button" class="quiz-option quiz-opt-q8" data-question="q8">Less than 1 hour</button>
+            <button type="button" class="quiz-option quiz-opt-q8" data-question="q8">1-2 hours</button>
+            <button type="button" class="quiz-option quiz-opt-q8" data-question="q8">3-4 hours</button>
+            <button type="button" class="quiz-option quiz-opt-q8" data-question="q8">5+ hours</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="assessment-footer assessment-completion">
+        <p id="assessmentStatus" role="status" aria-live="polite">Set the number of units, add every unit and answer all check-in questions to continue.</p>
+        <button id="continueToFindingsBtn" class="primary-btn" type="button" disabled>Next Section &rarr;</button>
+      </section>
+
+      <footer class="assessment-navigation">
+        <a class="back-link" href="/#profile-form">&larr; Back to Home</a>
+      </footer>
+    </main>
+  </body>
+</html>

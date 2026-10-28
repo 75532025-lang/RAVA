@@ -45,7 +45,7 @@ Testing was performed against the static files in the integrated Chromium browse
 
 ## Reproduction
 
-1. Open `pages/index.html` in a Chromium-based browser.
+1. Open `/` (Home) in a Chromium-based browser.
 2. Enter synthetic profile values and save.
 3. Continue to Assessment; choose a current academic year, semester, and one unit.
 4. Add a unit using the 70/30 template and answer one option for each of the eight questions.

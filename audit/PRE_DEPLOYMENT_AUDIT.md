@@ -14,12 +14,12 @@ The supplied audit prompt's API, server-side authorization, database, GPA engine
 
 ## Architecture and important files
 
-- `pages/index.html`, `pages/page2.html`, and `pages/page3.html` are the Home, Assessment, and Findings views.
+- `pages/index.html`, `pages/page1.html`, and `pages/page2.html` are the Home, Page 1 Assessment, and Page 2 Findings views.
 - `js/shared.js` stores profile records and workflow state in browser `localStorage`.
-- `js/page1.js` manages profiles and optional previous-semester grade history.
-- `js/page2.js` manages unit component distributions and the diagnostic check-in.
-- `js/page3.js` manages targets, study recommendations, weekly plans, report generation, and browser printing.
-- `css/global.css` and `css/page1.css`, `css/page2.css`, and `css/page3.css` provide styles.
+- `js/index.js` manages profiles and optional previous-semester grade history.
+- `js/page1.js` manages unit component distributions and the diagnostic check-in.
+- `js/page2.js` manages targets, study recommendations, weekly plans, report generation, and browser printing.
+- `css/global.css`, `css/index.css`, `css/page1.css`, and `css/page2.css` provide shared and page styles.
 - `README.md` documents direct browser use and the local-data limitation.
 
 There are no package/configuration files for a framework, API, deployment host, automated test runner, or dependency scanner. The repository has no production domain or environment variables to verify.

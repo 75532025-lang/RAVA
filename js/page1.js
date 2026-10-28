@@ -1,312 +1,373 @@
-const profileForm = document.getElementById('profileForm');
-const profileStatus = document.getElementById('profileStatus');
-const saveDraftButton = document.getElementById('saveDraftBtn');
-const continueButton = document.getElementById('continueToPage2Btn');
-const previousUnitsBody = document.getElementById('previousUnitsBody');
-const previousUnitsSummary = document.getElementById('previousUnitsSummary');
-const previousUnitsStatus = document.getElementById('previousUnitsStatus');
-const previousUnitNameInput = document.getElementById('previousUnitName');
-const previousUnitGradeInput = document.getElementById('previousUnitGrade');
-const gradeScaleSelect = document.getElementById('gradeScaleSelect');
-const previousGradeHint = document.getElementById('previousGradeHint');
-const profileFieldNames = ['fullName', 'university', 'course', 'yearOfStudy', 'previousAcademicYear'];
-const profileFields = {
-  ...Object.fromEntries(profileFieldNames.map((name) => [name, document.getElementById(name)])),
-  previousSemester: document.getElementById('previousSemester')
-};
-let activeProfile = window.RavaStore.getActiveProfile();
-let previousUnits = normalizePreviousUnits(activeProfile?.profile?.previousSemester?.units);
-let createNewProfile = false;
-let savedProfile = activeProfile?.profile;
-let profileFormDirty = false;
+const activeProfile = window.RavaStore.getActiveProfile();
+if (!activeProfile?.profileSaved) {
+  window.location.replace('/#profile-form');
+} else {
+  const profile = activeProfile.profile;
+  let units = Array.isArray(activeProfile.units) ? activeProfile.units : [];
+  let answers = normalizeAnswers(activeProfile.quizAnswers);
+  let currentSemester = activeProfile.currentSemester || {};
+  let customComponents = Array.isArray(currentSemester.customComponents) ? currentSemester.customComponents : null;
+  let previousTemplate = '70/30';
 
-function normalizePreviousUnits(units) {
-  if (!Array.isArray(units)) return [];
-  return units.map((unit) => {
-    if (!unit || typeof unit.name !== 'string') return null;
-    const type = unit.gradeType || (typeof unit.grade === 'number' ? 'percent' : /^[a-d]$/i.test(String(unit.grade)) ? 'letter' : 'weight');
-    const input = type === 'percent' ? `${unit.grade}%` : String(unit.grade ?? '');
-    const parsed = parseGrade(input, type);
-    return parsed ? { name: unit.name.trim(), grade: parsed.grade, gradeType: parsed.type } : null;
-  }).filter((unit) => unit?.name);
-}
+  const unitForm = document.getElementById('unitBuilderForm');
+  const unitNameInput = document.getElementById('unitNameInput');
+  const templateSelect = document.getElementById('templateSelect');
+  const unitsContainer = document.getElementById('recordedUnitsContainer');
+  const validationStatus = document.getElementById('overallValidation');
+  const formStatus = document.getElementById('unitFormStatus');
+  const assessmentStatus = document.getElementById('assessmentStatus');
+  const continueButton = document.getElementById('continueToFindingsBtn');
+  const quizButtons = document.querySelectorAll('.quiz-option[data-question]');
+  const currentSemesterForm = document.getElementById('currentSemesterForm');
+  const currentAcademicYearInput = document.getElementById('currentAcademicYear');
+  const currentSemesterSelect = document.getElementById('currentSemesterSelect');
+  const maximumUnitsInput = document.getElementById('maximumUnitsInput');
+  const currentSemesterStatus = document.getElementById('currentSemesterStatus');
+  const customDialog = document.getElementById('customBreakdownDialog');
+  const customBreakdownForm = document.getElementById('customBreakdownForm');
+  const customComponentList = document.getElementById('customComponentList');
+  const customBreakdownTotal = document.getElementById('customBreakdownTotal');
+  const customBreakdownError = document.getElementById('customBreakdownError');
+  const applyCustomBreakdownButton = document.getElementById('applyCustomBreakdown');
+  const componentChoices = ['Exam', 'CATs', 'Lab practicals', 'Assignments', 'RATs', 'Group work'];
 
-function parseGrade(value, type) {
-  const raw = String(value || '').trim();
-  if (type === 'letter') return /^[a-d]$/i.test(raw) ? { grade: raw.toUpperCase(), type } : null;
-  const numericText = type === 'percent' && raw.endsWith('%') ? raw.slice(0, -1).trim() : raw;
-  if (!/^\d+(?:\.\d+)?$/.test(numericText)) return null;
-  const number = Number(numericText);
-  if (!Number.isFinite(number)) return null;
-  if (type === 'percent') return number <= 100 ? { grade: number, type } : null;
-  return type === 'weight' && number >= 0 ? { grade: numericText, type } : null;
-}
-
-function updateGradeScale() {
-  const copy = {
-    percent: ['e.g. 68', 'Enter a percentage from 0 to 100.'],
-    letter: ['e.g. A', 'Enter A, B, C, or D.'],
-    weight: ['e.g. 1.0', 'Enter a numeric weight, such as 1.0.']
-  }[gradeScaleSelect.value];
-  previousUnitGradeInput.placeholder = copy[0];
-  previousUnitGradeInput.inputMode = gradeScaleSelect.value === 'letter' ? 'text' : 'decimal';
-  previousGradeHint.textContent = copy[1];
-  previousUnitGradeInput.value = '';
-}
-
-function formatGrade(unit) {
-  return unit.gradeType === 'percent' ? `${unit.grade}%` : String(unit.grade);
-}
-
-function normalizeAcademicYear(value) {
-  const match = String(value || '').trim().match(/^(\d{4})\/(\d{2}|\d{4})$/);
-  if (!match) return '';
-  const startYear = Number(match[1]);
-  const endYear = match[2].length === 2
-    ? Math.floor(startYear / 100) * 100 + Number(match[2]) + (Number(match[2]) < startYear % 100 ? 100 : 0)
-    : Number(match[2]);
-  return endYear === startYear + 1 ? `${startYear}/${endYear}` : '';
-}
-
-function readProfileForm() {
-  return {
-    ...Object.fromEntries(profileFieldNames.map((name) => [name, profileFields[name].value.trim()])),
-    previousSemester: {
-      academicYear: profileFields.previousAcademicYear.value.trim(),
-      semester: profileFields.previousSemester.value.trim(),
-      units: previousUnits.map((unit) => ({ ...unit }))
+  function populateAcademicYears(savedYear = '') {
+    currentAcademicYearInput.replaceChildren(new Option('Choose academic year', ''));
+    for (let year = 2020; year <= 2026; year += 1) {
+      const value = `${year}/${year + 1}`;
+      currentAcademicYearInput.add(new Option(value, value));
     }
-  };
-}
+    currentAcademicYearInput.value = [...currentAcademicYearInput.options].some((option) => option.value === savedYear)
+      ? savedYear
+      : '';
+  }
 
-function setProfileForm(profile) {
-  profileFieldNames.forEach((name) => {
-    if (!profileFields[name] || !profile[name]) return;
-    profileFields[name].value = name === 'previousAcademicYear'
-      ? normalizeAcademicYear(profile[name])
-      : profile[name];
+  populateAcademicYears(currentSemester.academicYear || '');
+  currentSemesterSelect.value = currentSemester.semester || '';
+  maximumUnitsInput.value = currentSemester.maxUnits || '';
+
+  function normalizeAnswers(saved) {
+    const defaults = { q1: [], q2: [], q3: '', q4: [], q5: [], q6: [], q7: '', q8: '' };
+    if (!saved || typeof saved !== 'object') return defaults;
+    Object.keys(defaults).forEach((key) => {
+      defaults[key] = Array.isArray(defaults[key])
+        ? Array.isArray(saved[key]) ? saved[key] : []
+        : typeof saved[key] === 'string' ? saved[key] : '';
+    });
+    return defaults;
+  }
+
+  function makeElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function setProfileContext() {
+    const name = window.RavaStore.firstName(profile.fullName);
+    document.getElementById('assessmentHeading').textContent = `${name}'s semester assessment`;
+    document.getElementById('assessmentName').textContent = name;
+    document.getElementById('assessmentUniversity').textContent = profile.university;
+    document.getElementById('assessmentCourse').textContent = profile.course;
+    document.getElementById('assessmentYear').textContent = profile.yearOfStudy;
+  }
+
+  function readCurrentSemester() {
+    return {
+      academicYear: currentAcademicYearInput.value.trim(),
+      semester: currentSemesterSelect.value,
+      maxUnits: Number(maximumUnitsInput.value) || 0,
+      customComponents: customComponents ? customComponents.map((component) => ({ ...component })) : null
+    };
+  }
+
+  function currentSemesterIsReady() {
+    const maxUnits = Number(maximumUnitsInput.value);
+    return Boolean(currentAcademicYearInput.value.trim() && currentSemesterSelect.value && Number.isInteger(maxUnits) && maxUnits >= 1 && maxUnits <= 30);
+  }
+
+  function getStandardComponents(template) {
+    const templates = {
+      '70/30': [{ name: 'Exam', outOf: 70 }, { name: 'CATs', outOf: 30 }],
+      '60/40': [{ name: 'Exam', outOf: 60 }, { name: 'CATs', outOf: 40 }],
+      '50/50': [{ name: 'Exam', outOf: 50 }, { name: 'CATs', outOf: 50 }]
+    };
+    return templates[template] || [];
+  }
+
+  function validUnit(unit) {
+    return Array.isArray(unit.components) && unit.components.length > 0 &&
+      unit.components.every((component) => component.name && Number.isInteger(Number(component.outOf)) && Number(component.outOf) > 0) &&
+      unit.components.reduce((total, component) => total + Number(component.outOf), 0) === 100;
+  }
+
+  function hasAllAnswers() {
+    return ['q1', 'q2', 'q4', 'q5', 'q6'].every((key) => answers[key].length > 0) &&
+      ['q3', 'q7', 'q8'].every((key) => Boolean(answers[key]));
+  }
+
+  function isAssessmentComplete() {
+    const expectedUnits = Number(maximumUnitsInput.value);
+    return currentSemesterIsReady() && expectedUnits === units.length && units.every(validUnit) && hasAllAnswers();
+  }
+
+  function persistAssessment() {
+    const complete = isAssessmentComplete();
+    window.RavaStore.updateActiveProfile({
+      units,
+      quizAnswers: answers,
+      currentSemester: readCurrentSemester(),
+      assessmentComplete: complete,
+      reportGenerated: false
+    });
+    renderAssessmentState();
+  }
+
+  function renderUnits() {
+    unitsContainer.replaceChildren();
+    if (!units.length) {
+      unitsContainer.appendChild(makeElement('p', 'empty-state', 'No units yet. Add each unit you are taking this semester.'));
+      validationStatus.textContent = currentSemesterIsReady() ? `0 of ${maximumUnitsInput.value} units added` : 'Set your semester details first';
+      validationStatus.classList.remove('is-valid', 'is-warning');
+      return;
+    }
+
+    units.forEach((unit) => {
+      const card = makeElement('article', 'unit-entry');
+      const header = makeElement('div', 'unit-entry-heading');
+      const titleGroup = makeElement('div', 'unit-title-group');
+      const title = makeElement('h3', '', unit.name);
+      const badge = makeElement('span', 'unit-status', `${unit.components.reduce((sum, component) => sum + Number(component.outOf), 0)} marks`);
+      const remove = makeElement('button', 'remove-unit-btn', 'Remove');
+      remove.type = 'button';
+      remove.dataset.unitId = unit.id;
+      remove.setAttribute('aria-label', `Remove ${unit.name}`);
+      titleGroup.append(title, badge);
+      header.append(titleGroup, remove);
+
+      const breakdown = makeElement('div', 'unit-components');
+      unit.components.forEach((component) => {
+        const row = makeElement('div', 'component-row');
+        row.append(makeElement('span', '', component.name), makeElement('span', '', `Out of ${component.outOf}`));
+        breakdown.appendChild(row);
+      });
+      card.append(header, breakdown);
+      unitsContainer.appendChild(card);
+    });
+
+    const expectedUnits = Number(maximumUnitsInput.value) || 0;
+    validationStatus.textContent = `${units.length} of ${expectedUnits || '?'} units added`;
+    validationStatus.classList.toggle('is-valid', expectedUnits > 0 && units.length === expectedUnits);
+    validationStatus.classList.toggle('is-warning', expectedUnits > 0 && units.length > expectedUnits);
+  }
+
+  function renderAssessmentState() {
+    const complete = isAssessmentComplete();
+    continueButton.disabled = !complete;
+    const pendingSteps = [];
+    const expectedUnits = Number(maximumUnitsInput.value) || 0;
+    if (!currentAcademicYearInput.value.trim()) pendingSteps.push('Set the current academic year.');
+    if (!currentSemesterSelect.value) pendingSteps.push('Choose the current semester.');
+    if (!expectedUnits) pendingSteps.push('Enter the maximum number of units.');
+    else if (units.length < expectedUnits) pendingSteps.push(`Add all ${expectedUnits} units (${units.length}/${expectedUnits} entered).`);
+    else if (units.length > expectedUnits) pendingSteps.push(`Remove ${units.length - expectedUnits} extra unit(s) to match your semester count.`);
+    if (!units.every(validUnit)) pendingSteps.push('Each unit must have components totaling 100 marks.');
+    if (!hasAllAnswers()) pendingSteps.push('Answer all eight check-in questions.');
+    assessmentStatus.textContent = complete
+      ? 'All semester units and check-in answers are complete. Your personal targets are set in the next section.'
+      : pendingSteps.join(' ');
+    currentSemesterStatus.textContent = currentSemesterIsReady()
+      ? `${units.length} of ${expectedUnits} units entered.`
+      : 'Set current academic year, semester, and unit count.';
+    window.RavaStore.updateActiveProfile({ assessmentComplete: complete, currentSemester: readCurrentSemester() });
+    window.RavaStore.renderWorkflowProgress();
+  }
+
+  function renderCustomComponents(components) {
+    customComponentList.replaceChildren();
+    componentChoices.forEach((name) => {
+      const existing = components.find((component) => component.name === name);
+      const row = makeElement('div', 'custom-component-row');
+      const label = makeElement('label', 'custom-component-label');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'component-enabled';
+      checkbox.checked = Boolean(existing);
+      checkbox.dataset.component = name;
+      label.append(checkbox, makeElement('span', '', name));
+
+      const marksLabel = makeElement('label', 'custom-marks-label', 'Out of');
+      const marks = document.createElement('input');
+      marks.type = 'number';
+      marks.className = 'component-marks';
+      marks.min = '1';
+      marks.max = '100';
+      marks.step = '1';
+      marks.value = existing?.outOf || '';
+      marks.disabled = !checkbox.checked;
+      marks.setAttribute('aria-label', `${name} marks out of`);
+      marksLabel.appendChild(marks);
+      row.append(label, marksLabel);
+      customComponentList.appendChild(row);
+
+      checkbox.addEventListener('change', () => {
+        marks.disabled = !checkbox.checked;
+        if (!checkbox.checked) marks.value = '';
+        updateCustomTotal();
+      });
+      marks.addEventListener('input', updateCustomTotal);
+    });
+    updateCustomTotal();
+  }
+
+  function readCustomComponents() {
+    return [...customComponentList.querySelectorAll('.custom-component-row')]
+      .filter((row) => row.querySelector('.component-enabled').checked)
+      .map((row) => ({
+        name: row.querySelector('.component-enabled').dataset.component,
+        outOf: Number(row.querySelector('.component-marks').value)
+      }));
+  }
+
+  function updateCustomTotal() {
+    const components = readCustomComponents();
+    const total = components.reduce((sum, component) => sum + (Number.isInteger(component.outOf) ? component.outOf : 0), 0);
+    customBreakdownTotal.textContent = `Selected marks: ${total} / 100`;
+    customBreakdownTotal.classList.toggle('is-valid', total === 100 && components.length > 0);
+    applyCustomBreakdownButton.disabled = total !== 100 || components.some((component) => !Number.isInteger(component.outOf) || component.outOf < 1);
+  }
+
+  function openCustomDialog() {
+    customBreakdownError.textContent = '';
+    renderCustomComponents(customComponents || [{ name: 'Exam', outOf: 60 }, { name: 'CATs', outOf: 40 }]);
+    if (typeof customDialog.showModal === 'function') customDialog.showModal();
+    else customDialog.setAttribute('open', '');
+  }
+
+  templateSelect.addEventListener('focus', () => {
+    if (templateSelect.value !== 'custom') previousTemplate = templateSelect.value;
   });
-  if (profile.previousSemester?.semester) profileFields.previousSemester.value = profile.previousSemester.semester;
-  previousUnits = normalizePreviousUnits(profile.previousSemester?.units);
-  renderPreviousUnits();
-}
-
-function profileMatchesForm(profile) {
-  if (!profile) return false;
-  const current = readProfileForm();
-  const savedPrevious = { ...(profile.previousSemester || {}) };
-  delete savedPrevious.studyYear;
-  return profileFieldNames.every((name) => name === 'previousAcademicYear'
-    ? normalizeAcademicYear(profile[name]) === normalizeAcademicYear(current[name])
-    : profile[name] === current[name]) &&
-    JSON.stringify({ ...savedPrevious, units: normalizePreviousUnits(savedPrevious.units) }) === JSON.stringify(current.previousSemester);
-}
-
-function updateDraftState() {
-  const unchanged = profileMatchesForm(window.RavaStore.getActiveProfile()?.profile);
-  if (continueButton) continueButton.disabled = !unchanged;
-  if (!unchanged && saveDraftButton) saveDraftButton.textContent = 'Save Draft';
-  if (profileStatus) {
-    profileStatus.textContent = unchanged
-      ? 'Your profile and previous semester are saved.'
-      : 'Save your profile and previous-semester details before continuing.';
-  }
-}
-
-function profileFormHasUnsavedChanges() {
-  return profileFormDirty;
-}
-
-function markProfileFormDirty() {
-  profileFormDirty = true;
-  updateDraftState();
-}
-
-function renderPreviousUnits() {
-  previousUnitsBody.replaceChildren();
-  if (!previousUnits.length) {
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    cell.colSpan = 3;
-    cell.textContent = 'No previous units added yet.';
-    row.appendChild(cell);
-    previousUnitsBody.appendChild(row);
-    if (previousUnitsSummary) previousUnitsSummary.textContent = 'No previous units added';
-    return;
-  }
-
-  previousUnits.forEach((unit, index) => {
-    const row = document.createElement('tr');
-    const nameCell = document.createElement('td');
-    const gradeCell = document.createElement('td');
-    const actionCell = document.createElement('td');
-    const removeButton = document.createElement('button');
-    nameCell.textContent = unit.name;
-    gradeCell.textContent = formatGrade(unit);
-    removeButton.type = 'button';
-    removeButton.className = 'remove-previous-unit';
-    removeButton.dataset.index = String(index);
-    removeButton.setAttribute('aria-label', `Remove ${unit.name} from previous semester`);
-    removeButton.textContent = 'Remove';
-    actionCell.appendChild(removeButton);
-    row.append(nameCell, gradeCell, actionCell);
-    previousUnitsBody.appendChild(row);
+  templateSelect.addEventListener('change', () => {
+    if (templateSelect.value === 'custom') {
+      openCustomDialog();
+    } else {
+      previousTemplate = templateSelect.value;
+      customComponents = null;
+      currentSemester = readCurrentSemester();
+      window.RavaStore.updateActiveProfile({ currentSemester: { ...currentSemester, customComponents: null } });
+    }
   });
 
-  const allPercentages = previousUnits.every((unit) => unit.gradeType === 'percent');
-  const average = allPercentages ? previousUnits.reduce((total, unit) => total + Number(unit.grade), 0) / previousUnits.length : null;
-  previousUnitsSummary.textContent = `${previousUnits.length} ${previousUnits.length === 1 ? 'unit' : 'units'}${average === null ? ' · grades recorded' : ` · ${average.toFixed(1)}% average`}`;
+  customBreakdownForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const selected = readCustomComponents();
+    const total = selected.reduce((sum, component) => sum + component.outOf, 0);
+    if (!selected.length || selected.some((component) => !Number.isInteger(component.outOf) || component.outOf < 1) || total !== 100) {
+      customBreakdownError.textContent = 'Choose components with whole-number maximum marks that total exactly 100.';
+      return;
+    }
+    customComponents = selected;
+    currentSemester = { ...readCurrentSemester(), customComponents };
+    window.RavaStore.updateActiveProfile({ currentSemester });
+    previousTemplate = 'custom';
+    customDialog.close();
+    customBreakdownError.textContent = '';
+    formStatus.textContent = `Custom breakdown set: ${selected.map((component) => `${component.name} ${component.outOf}`).join(' · ')}.`;
+  });
+
+  function cancelCustomDialog() {
+    templateSelect.value = previousTemplate === 'custom' ? '70/30' : previousTemplate;
+    customDialog.close();
+    customBreakdownError.textContent = '';
+  }
+
+  document.getElementById('cancelCustomBreakdown').addEventListener('click', cancelCustomDialog);
+  document.getElementById('closeCustomBreakdown').addEventListener('click', cancelCustomDialog);
+  customDialog.addEventListener('cancel', () => {
+    templateSelect.value = previousTemplate === 'custom' ? '70/30' : previousTemplate;
+  });
+
+  currentSemesterForm.addEventListener('input', () => {
+    currentSemester = readCurrentSemester();
+    window.RavaStore.updateActiveProfile({ currentSemester, assessmentComplete: false, reportGenerated: false });
+    renderUnits();
+    renderAssessmentState();
+  });
+
+  unitForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = unitNameInput.value.trim();
+    const expectedUnits = Number(maximumUnitsInput.value) || 0;
+    if (!currentSemesterIsReady()) {
+      formStatus.textContent = 'Set the current academic year, semester, and unit count first.';
+      return;
+    }
+    if (!name) {
+      formStatus.textContent = 'Enter a unit name to add it.';
+      unitNameInput.focus();
+      return;
+    }
+    if (units.length >= expectedUnits) {
+      formStatus.textContent = `You set ${expectedUnits} units for this semester. Change the unit count or remove a unit before adding another.`;
+      return;
+    }
+
+    const template = templateSelect.value;
+    const components = template === 'custom' ? customComponents : getStandardComponents(template);
+    if (!components?.length) {
+      formStatus.textContent = 'Choose a template or configure a custom breakdown first.';
+      return;
+    }
+    units.push({ id: globalThis.crypto?.randomUUID?.() || String(Date.now()), name, template, components: components.map((component) => ({ ...component })) });
+    unitNameInput.value = '';
+    formStatus.textContent = `${name} added (${units.length} of ${expectedUnits}).`;
+    persistAssessment();
+    renderUnits();
+  });
+
+  unitsContainer.addEventListener('click', (event) => {
+    const button = event.target.closest('.remove-unit-btn');
+    if (!button) return;
+    units = units.filter((unit) => unit.id !== button.dataset.unitId);
+    persistAssessment();
+    renderUnits();
+  });
+
+  function setOptionState(button, selected) {
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  }
+
+  quizButtons.forEach((button) => {
+    const key = button.dataset.question;
+    const value = button.textContent.trim();
+    setOptionState(button, Array.isArray(answers[key]) ? answers[key].includes(value) : answers[key] === value);
+    button.addEventListener('click', () => {
+      const multi = ['q1', 'q2', 'q4', 'q5', 'q6'].includes(key);
+      if (multi) {
+        const selected = answers[key];
+        const index = selected.indexOf(value);
+        if (index >= 0) selected.splice(index, 1);
+        else selected.push(value);
+        setOptionState(button, index < 0);
+      } else {
+        quizButtons.forEach((other) => {
+          if (other.dataset.question === key) setOptionState(other, other === button);
+        });
+        answers[key] = value;
+      }
+      persistAssessment();
+    });
+  });
+
+  continueButton.addEventListener('click', () => {
+    if (!isAssessmentComplete()) return;
+    window.RavaStore.updateActiveProfile({ units, quizAnswers: answers, currentSemester: readCurrentSemester(), assessmentComplete: true, reportGenerated: false });
+    window.location.href = '/pages/page2.html';
+  });
+
+  setProfileContext();
+  renderUnits();
+  renderAssessmentState();
 }
-
-function addPreviousUnit() {
-  const name = previousUnitNameInput.value.trim();
-  const grade = parseGrade(previousUnitGradeInput.value, gradeScaleSelect.value);
-  if (!name || !grade) {
-    previousUnitsStatus.textContent = `Enter a valid ${gradeScaleSelect.options[gradeScaleSelect.selectedIndex].text.toLowerCase()} grade.`;
-    return;
-  }
-
-  previousUnits.push({ name, grade: grade.grade, gradeType: grade.type });
-  profileFormDirty = true;
-  previousUnitNameInput.value = '';
-  previousUnitGradeInput.value = '';
-  previousUnitsStatus.textContent = `${name} added to previous-semester history.`;
-  renderPreviousUnits();
-  updateDraftState();
-}
-
-if (savedProfile) setProfileForm(savedProfile);
-if (continueButton) continueButton.disabled = !activeProfile?.profileSaved || !profileMatchesForm(savedProfile);
-
-profileForm?.addEventListener('input', markProfileFormDirty);
-profileForm?.addEventListener('change', markProfileFormDirty);
-document.getElementById('addPreviousUnitBtn')?.addEventListener('click', addPreviousUnit);
-gradeScaleSelect?.addEventListener('change', updateGradeScale);
-updateGradeScale();
-
-previousUnitsBody?.addEventListener('click', (event) => {
-  const button = event.target.closest('.remove-previous-unit');
-  if (!button) return;
-  const index = Number(button.dataset.index);
-  if (!Number.isInteger(index) || index < 0 || index >= previousUnits.length) return;
-  previousUnits.splice(index, 1);
-  profileFormDirty = true;
-  renderPreviousUnits();
-  previousUnitsStatus.textContent = 'Previous unit removed. Save your changes to keep this update.';
-  updateDraftState();
-});
-
-profileForm?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  if (!profileForm.reportValidity()) return;
-
-  const profile = window.RavaStore.saveProfile(readProfileForm(), createNewProfile);
-  if (!profile) {
-    profileStatus.textContent = 'This browser could not save your profile. Check its storage settings and try again.';
-    return;
-  }
-
-  activeProfile = profile;
-  savedProfile = profile.profile;
-  createNewProfile = false;
-  profileFormDirty = false;
-  if (continueButton) continueButton.disabled = false;
-  saveDraftButton.textContent = 'Draft Saved';
-  profileStatus.textContent = `Saved for ${window.RavaStore.firstName(profile.profile.fullName)}, including previous-semester details.`;
-  window.RavaStore.renderProfileSwitcher();
-  window.RavaStore.renderProfileHeader();
-  window.RavaStore.renderWorkflowProgress();
-  document.getElementById('profileName').textContent = window.RavaStore.firstName(profile.profile.fullName);
-  const initials = window.RavaStore.firstName(profile.profile.fullName)[0].toLocaleUpperCase();
-  document.getElementById('profileAvatar').textContent = initials;
-});
-
-function beginNewProfile() {
-  if (profileFormHasUnsavedChanges() && !window.confirm('Discard unsaved profile changes and start a new person?')) {
-    window.RavaStore.renderProfileSwitcher();
-    return;
-  }
-  createNewProfile = true;
-  profileForm.reset();
-  profileFormDirty = false;
-  previousUnits = [];
-  renderPreviousUnits();
-  previousUnitsStatus.textContent = '';
-  if (continueButton) continueButton.disabled = true;
-  if (saveDraftButton) saveDraftButton.textContent = 'Save Draft';
-  if (profileStatus) profileStatus.textContent = 'Create a new profile. Existing saved profiles will not change.';
-  const selector = document.getElementById('savedProfileSelect');
-  if (selector) selector.value = '__new_person__';
-  profileFields.fullName.focus();
-}
-
-window.addEventListener('rava:new-person', beginNewProfile);
-
-window.addEventListener('rava:profile-selected', (event) => {
-  const selectedProfile = event.detail;
-  if (!selectedProfile?.profileSaved) return;
-  if (profileFormHasUnsavedChanges() && !window.confirm('Discard unsaved profile changes and switch profiles?')) {
-    window.RavaStore.renderProfileSwitcher();
-    return;
-  }
-  if (!window.RavaStore.setActiveProfile(selectedProfile.id)) {
-    profileStatus.textContent = 'This browser could not switch profiles. Check its storage settings and try again.';
-    return;
-  }
-  activeProfile = selectedProfile;
-  savedProfile = selectedProfile.profile;
-  createNewProfile = false;
-  profileForm.reset();
-  profileFormDirty = false;
-  previousUnits = normalizePreviousUnits(savedProfile.previousSemester?.units);
-  setProfileForm(savedProfile);
-  if (continueButton) continueButton.disabled = !profileMatchesForm(savedProfile);
-  if (saveDraftButton) saveDraftButton.textContent = 'Save Draft';
-  profileStatus.textContent = `Switched to ${window.RavaStore.firstName(savedProfile.fullName)}. Their saved profile is unchanged.`;
-  window.RavaStore.renderProfileHeader();
-  window.RavaStore.renderProfileSwitcher();
-  window.RavaStore.renderWorkflowProgress();
-});
-
-continueButton?.addEventListener('click', () => {
-  const profile = window.RavaStore.getActiveProfile();
-  if (!profile?.profileSaved || !profileMatchesForm(profile.profile)) {
-    continueButton.disabled = true;
-    profileStatus.textContent = 'Save your profile and previous-semester details before continuing.';
-    return;
-  }
-  window.location.href = 'page2.html';
-});
-
-const announcements = [
-  { text: 'Set up your profile and previous semester to begin.', link: 'Complete profile', href: '#profile-form', required: '' },
-  { text: 'Choose unit targets and reflect on the habits shaping your study.', link: 'Open assessment', href: 'page2.html', required: 'profile' },
-  { text: 'Turn your answers into findings, recommendations, and a clear next step.', link: 'View report', href: 'page3.html#report-panel', required: 'assessment' }
-];
-
-let announcementIndex = 0;
-const announcementText = document.getElementById('announcementText');
-const announcementLink = document.getElementById('announcementLink');
-
-function renderAnnouncement() {
-  const announcement = announcements[announcementIndex];
-  announcementText.textContent = announcement.text;
-  announcementLink.textContent = `${announcement.link} →`;
-  announcementLink.href = announcement.href;
-  if (announcement.required) announcementLink.dataset.required = announcement.required;
-  else delete announcementLink.dataset.required;
-}
-
-document.getElementById('previousAnnouncement')?.addEventListener('click', () => {
-  announcementIndex = (announcementIndex + announcements.length - 1) % announcements.length;
-  renderAnnouncement();
-});
-
-document.getElementById('nextAnnouncement')?.addEventListener('click', () => {
-  announcementIndex = (announcementIndex + 1) % announcements.length;
-  renderAnnouncement();
-});
-
-renderPreviousUnits();
-renderAnnouncement();
-if (window.location.hash === '#new-person') beginNewProfile();

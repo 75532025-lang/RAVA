@@ -207,5 +207,5 @@ const currentPage = document.body.dataset.page;
 if (currentPage === 'assessment' && !currentProfile?.profileSaved) {
   window.location.replace('/#profile-form');
 } else if (currentPage === 'findings' && !currentProfile?.assessmentComplete) {
-  window.location.replace(currentProfile?.profileSaved ? '/pages/page2.html' : '/#profile-form');
+  window.location.replace(currentProfile?.profileSaved ? '/pages/page1.html' : '/#profile-form');
 }

@@ -10,19 +10,19 @@ Open `pages/index.html` directly in a browser. For a consistent HTTP origin, sta
 python -m http.server 8000
 ```
 
-Then open [http://localhost:8000/pages/index.html](http://localhost:8000/pages/index.html). Home saves a profile before unlocking Assessment; a completed assessment unlocks Findings; generating the final report unlocks its download. The navigation and progress strip are shared across all three pages. Browser-local profiles work without a build step or server.
+Then open [http://localhost:8000/pages/index.html](http://localhost:8000/pages/index.html). Home saves a profile before unlocking Page 1; a completed assessment unlocks Page 2; generating the final report unlocks its download. The navigation and progress strip are shared across all three pages. Browser-local profiles work without a build step or server. Vercel serves `/` through the rewrite in `vercel.json`.
 
 ## Project map
 
 - `pages/index.html` is Home, where each person creates or selects a saved profile and records the previous academic year, semester, and optional unit grades. Academic-year options currently run through 2026/2027.
-- `pages/page2.html` is Assessment, where the current academic year, semester, expected unit count, component mark distributions, and all eight diagnostic answers are entered. Custom distributions are configured in a modal.
-- `pages/page3.html` moves the live check-in summary, accepts a target for every component, analyzes results, provides two detailed recommendations per unit, supports reusable weekly plans, and prints the final report to PDF.
+- `pages/page1.html` is Page 1 (Assessment), where the current academic year, semester, expected unit count, component mark distributions, and all eight diagnostic answers are entered. Custom distributions are configured in a modal.
+- `pages/page2.html` is Page 2 (Findings), where users review the check-in summary, set targets, see recommendations, make weekly plans, and generate or print the final report.
 - `css/global.css` provides the shared beige/medium-grey palette, responsive navigation, progress strip, typography, and focus styles.
-- `css/page1.css`, `css/page2.css`, and `css/page3.css` contain each page's responsive layout and controls.
+- `css/index.css`, `css/page1.css`, and `css/page2.css` contain the Home, Page 1, and Page 2 responsive layouts and controls.
 - `js/shared.js` manages profile storage, switching, shared navigation, and workflow progress.
-- `js/page1.js` manages profile creation, validation, carousel controls, and the Home continuation gate.
-- `js/page2.js` manages per-profile current-semester setup, unit distributions, the custom-weight modal, diagnostic answers, and the exact unit-count completion gate.
-- `js/page3.js` manages component target entry, live summaries, analysis, recommendations, weekly plans, and the final report/download gate.
+- `js/index.js` manages profile creation, validation, carousel controls, and the Home continuation gate.
+- `js/page1.js` manages per-profile current-semester setup, unit distributions, the custom-weight modal, diagnostic answers, and the exact unit-count completion gate.
+- `js/page2.js` manages component target entry, live summaries, analysis, recommendations, weekly plans, and the final report/download gate.
 
 ## Data and privacy
 
